@@ -6,6 +6,7 @@ import { ArrowLeft, Check, Send, ShieldCheck, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { GatekeeperAgent, type VettingResult } from "@/lib/ai/gatekeeper";
+import { supabase } from "@/lib/supabase";
 
 export default function ApplyPage() {
     const [step, setStep] = useState(1);
@@ -30,8 +31,25 @@ export default function ApplyPage() {
         setIsAnalyzing(false);
 
         if (result.approved) {
-            // TODO: Submit to backend
-            console.log("Approved!", formData);
+            // Submit to Supabase
+            const { error } = await supabase
+                .from('applications')
+                .insert([
+                    {
+                        name: formData.name,
+                        email: formData.email,
+                        goal: formData.goal,
+                        score: result.score,
+                        approved: result.approved
+                    }
+                ]);
+
+            if (error) {
+                console.error("Supabase Error:", error);
+                // We logicially show the result anyway but log the DB error
+            } else {
+                console.log("Application saved to Supabase!");
+            }
         }
     };
 
