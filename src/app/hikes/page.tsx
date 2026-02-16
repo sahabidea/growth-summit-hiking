@@ -1,12 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Mountain, Cloud, Users, MapPin, Clock, Activity } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    ArrowLeft, Mountain, MapPin,
+    Clock, Activity, Sparkles, Navigation,
+    Cloud, Users
+} from "lucide-react";
 import Link from "next/link";
 import { PathfinderAgent, type Route } from "@/lib/ai/pathfinder";
 import { SageAgent, type Topic } from "@/lib/ai/sage";
 import { cn } from "@/lib/utils";
+
+// Note: Lucide icons can sometimes fail to import if they are misspelled, 
+// using correctly spelled icons for the UI.
+
 
 export default function HikesPage() {
     const [weather, setWeather] = useState("Sunny");
@@ -17,163 +25,193 @@ export default function HikesPage() {
     const handleFindRoute = () => {
         const route = PathfinderAgent.suggestRoute(weather, groupSize);
         const topic = SageAgent.suggestTopic(route.vibe);
-
         setSuggestedRoute(route);
         setSuggestedTopic(topic);
     };
 
     return (
-        <div className="min-h-screen bg-background font-sans text-right" dir="rtl">
+        <div className="min-h-screen bg-slate-950 font-sans text-right pb-12 selection:bg-emerald-500/30 text-white" dir="rtl">
+            {/* Decorative Ridge Line */}
+            <div className="fixed top-0 right-0 w-full h-[30vh] bg-white/5 pointer-events-none" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 100%)' }} />
+
             {/* Navigation */}
-            <nav className="fixed w-full z-50 bg-background/80 backdrop-blur-md border-b border-border/50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <Link href="/" className="flex items-center space-x-2 space-x-reverse text-foreground hover:text-forest-800 transition-colors">
-                            <ArrowLeft className="h-5 w-5 rotate-180" />
-                            <span className="font-medium">بازگشت</span>
-                        </Link>
-                        <div className="flex items-center space-x-2 space-x-reverse">
-                            <Mountain className="h-6 w-6 text-forest-800" />
-                            <span className="font-bold text-xl tracking-tighter">برنامه‌ها</span>
+            <nav className="fixed w-full z-50 px-6 py-6">
+                <div className="max-w-7xl mx-auto backdrop-blur-md bg-white/5 rounded-3xl px-8 py-4 flex justify-between items-center border border-white/10">
+                    <Link href="/" className="flex items-center gap-3 text-white/40 hover:text-white transition-colors font-black text-sm group">
+                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        <span>کمپ اصلی</span>
+                    </Link>
+                    <div className="flex items-center gap-3">
+                        <div className="bg-emerald-500 p-1 rounded-lg">
+                            <Mountain className="h-6 w-6 text-slate-950" />
                         </div>
+                        <span className="font-black text-2xl tracking-tighter uppercase">برنامه‌ها</span>
                     </div>
                 </div>
             </nav>
 
-            <main className="pt-32 pb-20 px-4">
-                <div className="max-w-4xl mx-auto">
-                    <div className="text-center mb-12">
-                        <span className="inline-block py-1 px-3 rounded-full bg-forest-50 text-forest-800 text-xs font-semibold uppercase tracking-wider mb-4 border border-forest-800/10">
-                            هوش مصنوعی راهنما
-                        </span>
-                        <h1 className="text-4xl md:text-5xl font-bold mb-4">مسیر مناسب خود را پیدا کنید</h1>
-                        <p className="text-muted-foreground text-lg">
-                            بر اساس شرایط آب‌وهوایی و تعداد گروه، بهترین مسیر را برای رشد و گفتگو پیشنهاد می‌دهیم.
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8 items-start">
-                        {/* Controls */}
+            <main className="pt-48 px-6 relative z-10">
+                <div className="max-w-6xl mx-auto">
+                    <header className="text-center mb-20 md:mb-24">
                         <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            className="bg-forest-50/50 p-8 rounded-2xl border border-forest-800/10"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            className="inline-flex items-center gap-3 bg-white/5 border border-white/10 text-emerald-400 px-6 py-2 rounded-full text-xs font-black mb-8 shadow-sm"
                         >
-                            <div className="space-y-6">
+                            <Navigation className="h-4 w-4" /> هوش مصنوعی مسیر
+                        </motion.div>
+                        <h1 className="text-5xl md:text-8xl font-black mb-8 tracking-tighter">مسیر ایده‌آل شما</h1>
+                        <p className="text-white/50 text-xl font-bold max-w-2xl mx-auto leading-relaxed">
+                            تحلیل هوشمند روت‌های کوهنوردی بر اساس شرایط جوی و تعداد همنوردان.
+                        </p>
+                    </header>
+
+                    <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-start">
+                        {/* Control Panel */}
+                        <motion.div
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="lg:col-span-12 xl:col-span-5 bg-white/5 backdrop-blur-md rounded-[3rem] p-8 md:p-12 border border-white/5 shadow-2xl"
+                        >
+                            <div className="space-y-12">
                                 <div>
-                                    <label className="block text-sm font-medium mb-2 flex items-center">
-                                        <Cloud className="ml-2 h-4 w-4 text-forest-800" /> وضعیت آب‌وهوا
-                                    </label>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {["Sunny", "Cloudy", "Rainy"].map((w) => (
+                                    <label className="block text-xs font-black mb-6 text-white/30 uppercase tracking-[0.2em] mr-1">وضعیت جوی</label>
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {[
+                                            { id: "Sunny", label: "آفتابی", icon: "☀️" },
+                                            { id: "Cloudy", label: "ابری", icon: "☁️" },
+                                            { id: "Rainy", label: "بارانی", icon: "🌧️" }
+                                        ].map((w) => (
                                             <button
-                                                key={w}
-                                                onClick={() => setWeather(w)}
+                                                key={w.id}
+                                                onClick={() => setWeather(w.id)}
                                                 className={cn(
-                                                    "px-4 py-2 rounded-lg text-sm font-medium transition-all border",
-                                                    weather === w
-                                                        ? "bg-forest-800 text-white border-forest-800"
-                                                        : "bg-white text-muted-foreground border-input hover:border-forest-800/50"
+                                                    "relative flex items-center justify-between p-6 rounded-2xl transition-all border-2 group font-black",
+                                                    weather === w.id
+                                                        ? "bg-white text-slate-950 border-white shadow-[0_0_20px_rgba(255,255,255,0.2)]"
+                                                        : "bg-white/5 border-white/5 text-white/50 hover:border-white/20"
                                                 )}
                                             >
-                                                {w === "Sunny" ? "آفتابی" : w === "Cloudy" ? "ابری" : "بارانی"}
+                                                <div className="flex items-center gap-4 relative z-10">
+                                                    <span className="text-2xl">{w.icon}</span>
+                                                    <span className="text-xl">{w.label}</span>
+                                                </div>
+                                                {weather === w.id && (
+                                                    <div className="bg-emerald-500 w-2 h-2 rounded-full" />
+                                                )}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium mb-2 flex items-center">
-                                        <Users className="ml-2 h-4 w-4 text-forest-800" /> تعداد گروه
-                                    </label>
-                                    <div className="flex items-center gap-4">
-                                        <input
-                                            type="range"
-                                            min="1"
-                                            max="20"
-                                            value={groupSize}
-                                            onChange={(e) => setGroupSize(parseInt(e.target.value))}
-                                            className="w-full accent-forest-800 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                                        />
-                                        <span className="font-mono w-8 text-center">{groupSize}</span>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <label className="text-xs font-black text-white/30 uppercase tracking-[0.2em] mr-1">تعداد همنوردان</label>
+                                        <span className="font-black text-2xl text-emerald-400 tabular-nums">{groupSize} نفر</span>
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-2">
-                                        {groupSize < 5 ? "مناسب برای گفتگوهای عمیق" : "مناسب برای شبکه‌سازی و انرژی گروهی"}
-                                    </p>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="20"
+                                        value={groupSize}
+                                        onChange={(e) => setGroupSize(parseInt(e.target.value))}
+                                        className="w-full accent-emerald-500 h-2 bg-white/10 rounded-full appearance-none cursor-pointer"
+                                    />
                                 </div>
 
                                 <button
                                     onClick={handleFindRoute}
-                                    className="w-full bg-forest-800 text-white py-3 rounded-xl font-medium hover:bg-forest-900 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                                    className="w-full bg-white text-slate-950 py-6 rounded-2xl font-black text-xl hover:scale-[1.02] transition-all shadow-2xl active:scale-[0.98] flex items-center justify-center gap-4 group"
                                 >
-                                    پیشنهاد مسیر
+                                    پیشنهاد مسیر <Sparkles className="h-6 w-6 text-emerald-500 group-hover:rotate-12 transition-transform" />
                                 </button>
                             </div>
                         </motion.div>
 
-                        {/* Result Area */}
-                        <div className="relative min-h-[300px]">
-                            {suggestedRoute ? (
-                                <motion.div
-                                    key={suggestedRoute.id}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-white p-8 rounded-2xl border border-border shadow-xl h-full flex flex-col justify-between"
-                                >
-                                    <div>
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div>
-                                                <h3 className="text-2xl font-bold text-forest-900 mb-1">{suggestedRoute.name}</h3>
-                                                <span className={cn(
-                                                    "inline-block px-2 py-0.5 rounded text-xs font-medium border",
-                                                    suggestedRoute.difficulty === "Easy" ? "bg-green-50 text-green-700 border-green-200" :
-                                                        suggestedRoute.difficulty === "Moderate" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
-                                                            "bg-red-50 text-red-700 border-red-200"
-                                                )}>
-                                                    {suggestedRoute.difficulty === "Easy" ? "ساده" : suggestedRoute.difficulty === "Moderate" ? "متوسط" : "سخت"}
-                                                </span>
-                                            </div>
-                                            <div className="bg-forest-50 p-3 rounded-full">
-                                                <MapPin className="h-6 w-6 text-forest-800" />
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-4 mb-6">
-                                            <div className="flex items-center text-muted-foreground">
-                                                <Clock className="ml-3 h-5 w-5 text-forest-800/70" />
-                                                <span>مدت زمان: {suggestedRoute.duration.replace('h', ' ساعت')}</span>
-                                            </div>
-                                            <div className="flex items-center text-muted-foreground">
-                                                <Activity className="ml-3 h-5 w-5 text-forest-800/70" />
-                                                <span>حال و هوا: {
-                                                    suggestedRoute.vibe === "Social" ? "اجتماعی و شاد" :
-                                                        suggestedRoute.vibe === "Focus" ? "کم‌حاشیه و متمرکز" : "چالشی و استقامتی"
-                                                }</span>
-                                            </div>
-                                        </div>
-
-                                        {suggestedTopic && (
-                                            <div className="bg-forest-50/50 border border-forest-800/10 p-4 rounded-xl mb-6">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className="bg-forest-800 text-white text-[10px] px-2 py-0.5 rounded-full">پیشنهاد حکیم (The Sage)</span>
-                                                    <span className="text-xs text-muted-foreground border border-forest-800/20 px-1.5 py-0.5 rounded">{suggestedTopic.category}</span>
+                        {/* Results Area */}
+                        <div className="lg:col-span-12 xl:col-span-7 min-h-[500px]">
+                            <AnimatePresence mode="wait">
+                                {suggestedRoute ? (
+                                    <motion.div
+                                        key={suggestedRoute.id}
+                                        initial={{ opacity: 0, scale: 0.95 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        className="bg-white/5 backdrop-blur-xl rounded-[3rem] p-10 md:p-16 border border-white/10 shadow-2xl relative overflow-hidden h-full flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="flex justify-between items-start mb-12">
+                                                <div className="text-right">
+                                                    <div className="flex gap-3 mb-4">
+                                                        <span className={cn(
+                                                            "px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                                                            suggestedRoute.difficulty === "Easy" ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/20" :
+                                                                suggestedRoute.difficulty === "Moderate" ? "bg-amber-500/20 text-amber-400 border-amber-500/20" :
+                                                                    "bg-rose-500/20 text-rose-400 border-rose-500/20"
+                                                        )}>
+                                                            {suggestedRoute.difficulty === "Easy" ? "ساده" : suggestedRoute.difficulty === "Moderate" ? "متوسط" : "چالشی"}
+                                                        </span>
+                                                        <span className="bg-white/5 px-4 py-1.5 rounded-full text-[10px] font-black text-white/30 uppercase tracking-widest border border-white/5">
+                                                            سطح حرفه‌ای
+                                                        </span>
+                                                    </div>
+                                                    <h3 className="text-4xl md:text-5xl font-black text-white leading-tight">{suggestedRoute.name}</h3>
                                                 </div>
-                                                <h4 className="font-bold text-forest-900 mb-1 text-sm">{suggestedTopic.title}</h4>
-                                                <p className="text-xs text-muted-foreground leading-relaxed">{suggestedTopic.description}</p>
+                                                <div className="bg-emerald-500 p-4 rounded-[2rem] shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                                                    <MapPin className="h-8 w-8 text-slate-950" />
+                                                </div>
                                             </div>
-                                        )}
-                                    </div>
 
-                                    <button className="w-full border border-forest-800 text-forest-800 py-3 rounded-xl font-medium hover:bg-forest-50 transition-colors">
-                                        مشاهده جزئیات مسیر
-                                    </button>
-                                </motion.div>
-                            ) : (
-                                <div className="h-full flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-border rounded-2xl p-8">
-                                    <Mountain className="h-12 w-12 mb-4 opacity-20" />
-                                    <p>تنظیمات را انتخاب کنید و دکمه پیشنهاد مسیر را بزنید</p>
-                                </div>
-                            )}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                                                <div className="bg-white/5 p-6 rounded-[2rem] border border-white/5">
+                                                    <div className="flex items-center gap-3 text-white/30 mb-3">
+                                                        <Clock className="h-5 w-5" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">زمان صعود</span>
+                                                    </div>
+                                                    <span className="text-2xl font-black text-white">{suggestedRoute.duration.replace('h', ' ساعت')}</span>
+                                                </div>
+                                                <div className="bg-white/5 p-6 rounded-[2rem] border border-white/5">
+                                                    <div className="flex items-center gap-3 text-white/30 mb-3">
+                                                        <Activity className="h-5 w-5" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest">حال و هوا</span>
+                                                    </div>
+                                                    <span className="text-2xl font-black text-white">
+                                                        {suggestedRoute.vibe === "Social" ? "اجتماعی" :
+                                                            suggestedRoute.vibe === "Focus" ? "تمرکز عمیق" : "استقامتی"}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {suggestedTopic && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 15 }}
+                                                    animate={{ opacity: 1, y: 15 }}
+                                                    className="bg-white p-8 md:p-10 rounded-[2.5rem] text-slate-950 mb-12 shadow-2xl relative z-10"
+                                                >
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <Sparkles className="h-5 w-5 text-emerald-600" />
+                                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">پیشنهاد حکیم (The Sage)</span>
+                                                    </div>
+                                                    <h4 className="text-2xl font-black mb-3 leading-tight underline decoration-emerald-500/20 decoration-8 underline-offset-2">{suggestedTopic.title}</h4>
+                                                    <p className="font-bold text-slate-600 leading-relaxed text-lg">{suggestedTopic.description}</p>
+                                                </motion.div>
+                                            )}
+                                        </div>
+
+                                        <button className="w-full bg-white/5 text-white/40 py-6 rounded-2xl font-black text-lg hover:bg-white/10 transition-all border border-white/5">
+                                            مشاهده گزارش فنی و نقشه
+                                        </button>
+                                    </motion.div>
+                                ) : (
+                                    <div className="h-full bg-white/5 backdrop-blur-sm rounded-[3.5rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center p-20 text-center">
+                                        <div className="bg-white/5 p-10 rounded-full shadow-2xl border border-white/5 mb-10">
+                                            <Mountain className="h-20 w-20 text-white/5" />
+                                        </div>
+                                        <h3 className="font-black text-3xl text-white/10 mb-4 uppercase italic">آماده تحلیل</h3>
+                                        <p className="text-white/20 font-bold max-w-sm">تنظیمات را از پنل سمت راست انتخاب کنید تا هوش مصنوعی بهترین مسیر را برای شما ترسیم کند.</p>
+                                    </div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     </div>
                 </div>

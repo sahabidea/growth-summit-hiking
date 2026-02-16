@@ -4,38 +4,93 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Nature Premium Palette */
-  --color-forest-900: #0f291e;
-  --color-forest-800: #1a472a;
-  --color-forest-50: #eef7f2;
+  /* Alpine Premium Palette */
+  --color-slate-950: #020617;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-400: #94a3b8;
+  --color-slate-200: #e2e8f0;
+  --color-slate-50: #f8fafc;
 
-  --color-earth-600: #8c735a;
-  --color-earth-100: #f3f0eb;
+  --color-pine-900: #064e3b;
+  --color-pine-800: #065f46;
+  --color-pine-600: #059669;
+  --color-pine-50: #ecfdf5;
 
-  --color-sage-500: #9caf88;
+  --color-mist-100: #f1f5f9;
+  --color-mist-50: #f8fafc;
 
   --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-lalezar), var(--font-vazirmatn), sans-serif;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2.5rem;
 }
 
 :root {
-  /* Light Mode - Crisp & Natural */
-  --background: #fdfdfc;
-  /* Warm off-white, not harsh #fff */
-  --foreground: #1a1a1a;
+  --background: #ffffff;
+  --foreground: #0f172a;
+
+  --primary: #0f172a;
+  --primary-foreground: #f8fafc;
+
+  --accent: #059669;
+  --accent-foreground: #ffffff;
+
+  --border: #e2e8f0;
+  --input: #f1f5f9;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark Mode - Deep & Atmospheric */
-    --background: #0a0f0d;
-    /* Very dark green/black */
-    --foreground: #f3f4f6;
+    --background: #020617;
+    --foreground: #f8fafc;
+
+    --primary: #f8fafc;
+    --primary-foreground: #020617;
+
+    --accent: #10b981;
+    --accent-foreground: #020617;
+
+    --border: #1e293b;
+    --input: #0f172a;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "ss02", "cv01";
+    line-height: 1.8;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-black tracking-tight leading-tight;
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-white/20 dark:border-white/5 shadow-2xl;
+  }
+
+  .glass-card {
+    @apply bg-white/50 dark:bg-slate-900/40 backdrop-blur-md border border-slate-100 dark:border-slate-800 shadow-xl;
+  }
+
+  .text-gradient-alpine {
+    @apply bg-gradient-to-br from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent;
+  }
+
+  .mountain-mask {
+    mask-image: linear-gradient(to bottom, black 0%, black 70%, transparent 100%);
+  }
 }

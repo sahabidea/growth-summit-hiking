@@ -1,5 +1,8 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Growth Summit Hiking Community
+This project uses a Long-term Memory system. Refer to `PROJECT_CONTEXT.md` for current status and AI agent logic.
+
 ## Getting Started
 
 First, run the development server:
