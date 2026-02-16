@@ -87,23 +87,27 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <motion.div whileHover={{ y: -10 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl">
                 <div className="h-96 relative overflow-hidden">
-                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058638/photo_2026-02-14_12-13-34_zessog.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="معمار ارشد صعود" />
+                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771224157/photo_2026-02-14_14-19-59_llyvov.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="حسین حکمیان" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
                 </div>
                 <div className="p-8">
-                  <h3 className="text-2xl font-display mb-2 text-emerald-400">معمار ارشد صعود</h3>
-                  <p className="text-white/50 font-medium">مدیریت استراتژیک و معماری مسیرهای رشد شخصی در پروژه «اوجِ رشد».</p>
+                  <h3 className="text-2xl font-display mb-2 text-emerald-400">حسین حکمیان</h3>
+                  <p className="text-white/50 font-medium leading-relaxed">
+                    خالق چشم‌اندازهای بزرگ و معمار ارشد صعود. حسین با نگاهی استراتژیک، کوهنوردی را از یک ورزش به یک مکتب رشد تبدیل کرده است تا هر گام، پله‌ای برای ارتقای شخصی باشد.
+                  </p>
                 </div>
               </motion.div>
 
               <motion.div whileHover={{ y: -10 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl">
                 <div className="h-96 relative overflow-hidden">
-                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058639/photo_2026-02-14_12-13-26_op8kym.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="راهنما و حکیم کوهستان" />
+                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058638/photo_2026-02-14_12-13-34_zessog.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="امین طبسی" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
                 </div>
                 <div className="p-8">
-                  <h3 className="text-2xl font-display mb-2 text-emerald-400">راهنما و حکیم کوهستان</h3>
-                  <p className="text-white/50 font-medium">متخصص فنی مسیرهای صعود و تحلیل‌گر ذهن‌آگاهی در ارتفاعات.</p>
+                  <h3 className="text-2xl font-display mb-2 text-emerald-400">امین طبسی</h3>
+                  <p className="text-white/50 font-medium leading-relaxed">
+                    مردی که زبان کوهستان را می‌داند. با دو دهه تجربه در مسیرهای ایران، امین نماد اطمینان و امنیت است. حضور او یعنی یادگیری تکنیک‌های ناب و شنیدن داستان‌هایی که فقط کوه‌ها شنیده‌اند.
+                  </p>
                 </div>
               </motion.div>
 
