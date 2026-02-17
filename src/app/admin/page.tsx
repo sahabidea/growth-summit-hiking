@@ -7,12 +7,13 @@ import {
     Users, CheckCircle2, XCircle, Clock,
     Search, ChevronRight, Mountain,
     LayoutDashboard, Map, Settings, LogOut,
-    Menu, X, Eye, Calendar
+    Menu, X, Eye, Calendar, MessageCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { EventsManager } from "./EventsManager";
+import { ChatManager } from "./ChatManager";
 
 interface Application {
     id: string;
@@ -87,6 +88,7 @@ export default function AdminDashboard() {
                     { id: "dash", label: "داشبورد", icon: LayoutDashboard },
                     { id: "apps", label: "درخواست‌ها", icon: Users },
                     { id: "events", label: "برنامه‌ها", icon: Calendar },
+                    { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
                     { id: "settings", label: "تنظیمات", icon: Settings },
                 ].map((item) => (
                     <button
@@ -193,6 +195,8 @@ export default function AdminDashboard() {
 
                 {/* Events View */}
                 {activeView === "events" && <EventsManager />}
+                {/* Chat View */}
+                {activeView === "chat" && <ChatManager />}
 
                 {/* Applications List - Show on Dash or Apps view */}
                 {(activeView === "dash" || activeView === "apps") && (
@@ -221,6 +225,7 @@ export default function AdminDashboard() {
                                     className="w-full bg-slate-950 pr-14 pl-6 py-4 rounded-2xl border border-white/5 focus:border-emerald-500 outline-none font-bold placeholder:text-white/10 text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    autoFocus // Keep focus if searching
                                 />
                             </div>
                         </div>

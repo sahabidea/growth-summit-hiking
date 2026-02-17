@@ -3,6 +3,7 @@ import { Rubik, Lalezar } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/ui/Navbar";
+import LiveChatWidget from "@/components/ui/LiveChatWidget";
 
 const rubik = Rubik({
   subsets: ["arabic", "latin"],
@@ -130,6 +131,7 @@ export default async function RootLayout({
       >
         <Navbar user={user} />
         {children}
+        <LiveChatWidget />
       </body>
     </html>
   );
