@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Mountain, Menu, X } from "lucide-react";
+import { Mountain, Menu, X, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { User } from "@supabase/supabase-js";
 
 const NAV_LINKS = [
     { href: "/#values", label: "ارزش‌ها" },
@@ -11,7 +12,11 @@ const NAV_LINKS = [
     { href: "/hikes", label: "برنامه‌ها" },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+    user?: User | null;
+}
+
+export default function Navbar({ user }: NavbarProps) {
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
@@ -33,12 +38,31 @@ export default function Navbar() {
                                 {link.label}
                             </Link>
                         ))}
-                        <Link
-                            href="/apply"
-                            className="bg-white text-slate-950 px-6 py-2.5 rounded-xl hover:scale-105 transition-all shadow-xl active:scale-95 font-black"
-                        >
-                            ثبت‌نام
-                        </Link>
+
+                        {user ? (
+                            <Link
+                                href="/dashboard"
+                                className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-6 py-2.5 rounded-xl hover:bg-emerald-500/20 transition-all font-black flex items-center gap-2"
+                            >
+                                <UserIcon className="w-4 h-4" />
+                                پنل کاربری
+                            </Link>
+                        ) : (
+                            <div className="flex items-center gap-2">
+                                <Link
+                                    href="/login"
+                                    className="text-white/80 hover:text-white px-4 py-2.5 rounded-xl transition-colors font-bold"
+                                >
+                                    ورود
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    className="bg-white text-slate-950 px-6 py-2.5 rounded-xl hover:scale-105 transition-all shadow-xl active:scale-95 font-black"
+                                >
+                                    ثبت‌نام
+                                </Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Mobile Toggle */}
@@ -90,13 +114,33 @@ export default function Navbar() {
                                 ))}
                             </div>
 
-                            <Link
-                                href="/apply"
-                                onClick={() => setMobileOpen(false)}
-                                className="bg-emerald-500 text-slate-950 py-4 rounded-2xl font-black text-center text-lg"
-                            >
-                                ثبت‌نام
-                            </Link>
+                            {user ? (
+                                <Link
+                                    href="/dashboard"
+                                    onClick={() => setMobileOpen(false)}
+                                    className="bg-emerald-500 text-slate-950 py-4 rounded-2xl font-black text-center text-lg flex items-center justify-center gap-2"
+                                >
+                                    <UserIcon className="w-5 h-5" />
+                                    پنل کاربری
+                                </Link>
+                            ) : (
+                                <div className="flex flex-col gap-3">
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setMobileOpen(false)}
+                                        className="bg-white/10 text-white py-4 rounded-2xl font-bold text-center text-lg hover:bg-white/20 transition-all"
+                                    >
+                                        ورود
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        onClick={() => setMobileOpen(false)}
+                                        className="bg-emerald-500 text-slate-950 py-4 rounded-2xl font-black text-center text-lg hover:scale-105 transition-transform"
+                                    >
+                                        ثبت‌نام
+                                    </Link>
+                                </div>
+                            )}
                         </motion.div>
                     </>
                 )}

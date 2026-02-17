@@ -1,75 +1,127 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, Zap, Heart, Compass, ArrowLeft, Star } from "lucide-react";
+import { ShieldCheck, Zap, Heart, Compass, ArrowLeft, Star, Sun } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import { useEffect, useState } from "react";
+
+const FloatingParticles = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
+      {[...Array(15)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute bg-amber-200 rounded-full mix-blend-overlay"
+          initial={{
+            x: `${Math.random() * 100}vw`,
+            y: `${Math.random() * 100}vh`,
+            opacity: 0,
+            scale: 0
+          }}
+          animate={{
+            y: [null, -120],
+            opacity: [0, 0.6, 0],
+            scale: [0, 1.2, 0]
+          }}
+          transition={{
+            duration: Math.random() * 10 + 15,
+            repeat: Infinity,
+            delay: Math.random() * 5,
+            ease: "easeOut",
+          }}
+          style={{
+            width: `${Math.random() * 4 + 2}px`,
+            height: `${Math.random() * 4 + 2}px`,
+            boxShadow: "0 0 10px rgba(251, 191, 36, 0.5)"
+          }}
+        />
+      ))}
+    </div>
+  );
+};
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-950 selection:bg-emerald-500/30 text-white overflow-x-hidden" dir="rtl">
-      {/* Cinematic Hero Background */}
+    <div className="min-h-screen bg-slate-950 text-white overflow-x-hidden selection:bg-amber-500/30" dir="rtl">
+      {/* Cinematic Hero Background - Morning Energy */}
       <div className="fixed inset-0 z-0">
         <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[20s] scale-110"
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[30s] scale-105"
           style={{
-            backgroundImage: `url('https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058072/mountain_hero_background_dark_1771057683768_uzbox7.jpg')`,
+            backgroundImage: `url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2670&auto=format&fit=crop')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/90 via-slate-950/30 to-slate-950" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950 opacity-40" />
+        {/* Warm Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/10 to-slate-950/90" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-amber-900/30 via-transparent to-purple-900/20 mix-blend-overlay" />
+
+        <FloatingParticles />
       </div>
 
       <Navbar />
 
       <main className="relative z-10">
         {/* Full Height Hero Section */}
-        <section className="relative min-h-screen flex items-center pt-20 px-6 pb-12">
+        <section className="relative min-h-screen flex items-center pt-24 px-6 pb-12">
           <div className="max-w-7xl mx-auto w-full text-center md:text-right">
             <div className="max-w-4xl">
               <motion.div
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="inline-flex items-center gap-3 bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 text-emerald-400 px-4 py-1.5 rounded-full text-xs font-black mb-8 shadow-sm"
+                className="inline-flex items-center gap-3 bg-amber-500/10 backdrop-blur-md border border-amber-500/20 text-amber-300 px-5 py-2 rounded-full text-sm font-black mb-8 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:bg-amber-500/20 transition-colors cursor-default"
               >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
                 </span>
-                اولین صعود: همین پنجشنبه
+                <span className="tracking-wide">اولین صعود: همین پنجشنبه</span>
               </motion.div>
 
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-6xl md:text-8xl lg:text-9xl font-display mb-8 leading-[1.2] text-white drop-shadow-2xl"
+                className="text-6xl md:text-8xl lg:text-9xl font-display mb-10 leading-[1.1] text-white drop-shadow-2xl"
               >
-                صعود به قله‌های <br />
-                <span className="bg-gradient-to-l from-emerald-400 to-cyan-300 bg-clip-text text-transparent">آرامش و رشد.</span>
+                فتح قله‌های <br />
+                <span className="bg-gradient-to-l from-amber-300 via-orange-400 to-rose-400 bg-clip-text text-transparent pb-2 inline-block">
+                  انرژی و امید.
+                </span>
               </motion.h1>
 
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="text-lg md:text-2xl text-white/70 max-w-2xl mb-12 font-medium leading-relaxed"
+                className="text-lg md:text-3xl text-white/90 max-w-2xl mb-12 font-medium leading-relaxed drop-shadow-lg"
               >
-                یک تجربه کوهنوردی اختصاصی برای بازیابی انرژی و ذهن‌آگاهی.
-                سکوت کوهستان، جایگزین هیاهوی سیاست.
+                طلوعی دوباره برای ذهن و بدن. فضایی پر از نور و هوای تازه،
+                جایی که خستگی‌ها جا می‌مانند و قدرت‌ها بازیابی می‌شوند.
               </motion.p>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center md:justify-start"
+                className="flex flex-col sm:flex-row gap-5 md:gap-8 justify-center md:justify-start"
               >
-                <Link href="/apply" className="bg-white text-slate-950 px-8 md:px-12 py-4 md:py-5 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl hover:shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all flex items-center justify-center gap-3 group active:scale-95">
-                  عضویت لیست انتظار <ArrowLeft className="h-5 w-5 md:h-6 md:w-6 transition-transform group-hover:-translate-x-1" />
+                <Link href="/apply" className="relative group bg-gradient-to-r from-amber-500 to-orange-600 text-white px-10 md:px-14 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-xl hover:shadow-[0_20px_50px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center gap-3 active:scale-95 overflow-hidden">
+                  <span className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></span>
+                  <span className="relative z-10 flex items-center gap-2">
+                    همین حالا عضو شوید <ArrowLeft className="h-6 w-6 transition-transform group-hover:-translate-x-1" />
+                  </span>
                 </Link>
-                <Link href="/hikes" className="bg-white/5 backdrop-blur-md text-white px-8 md:px-12 py-4 md:py-5 rounded-2xl md:rounded-3xl font-black text-lg md:text-xl border border-white/10 hover:bg-white/10 transition-all flex items-center justify-center gap-3 active:scale-95">
-                  مشاهده برنامه‌ها <Compass className="h-5 w-5 md:h-6 md:w-6 text-emerald-400" />
+                <Link href="/hikes" className="bg-white/5 backdrop-blur-md text-white px-10 md:px-14 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-xl border border-white/10 hover:bg-white/15 hover:border-amber-500/30 transition-all flex items-center justify-center gap-3 active:scale-95 group">
+                  برنامه‌های صعود <Compass className="h-6 w-6 text-amber-400 group-hover:rotate-45 transition-transform duration-500" />
                 </Link>
               </motion.div>
             </div>
@@ -77,47 +129,58 @@ export default function Home() {
         </section>
 
         {/* Guides Section */}
-        <section id="guides" className="py-32 bg-slate-900/50 relative px-6">
+        <section id="guides" className="py-32 relative px-6">
+          {/* Ambient Background Glow */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/80 to-slate-950 z-0" />
+
           <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-display mb-6">بانیان صعود</h2>
-              <p className="text-white/40 text-lg md:text-xl max-w-2xl mx-auto">تیم فنی و متخصصین کوهستان که در هر قدم کنار شما هستند.</p>
+            <div className="text-center mb-24">
+              <h2 className="text-4xl md:text-7xl font-display mb-6 text-white drop-shadow-xl">بانیان صعود</h2>
+              <p className="text-amber-100/60 text-lg md:text-2xl max-w-2xl mx-auto font-light">
+                تیم فنی و متخصصین کوهستان که در هر قدم کنار شما هستند.
+              </p>
             </div>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <motion.div whileHover={{ y: -10 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl">
-                <div className="h-96 relative overflow-hidden">
+              <motion.div whileHover={{ y: -15 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl hover:border-amber-500/30 transition-all duration-500">
+                <div className="h-[28rem] relative overflow-hidden">
                   <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771224157/photo_2026-02-14_14-19-59_llyvov.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="حسین حکمیان" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-0 right-0 p-8 w-full">
+                    <h3 className="text-3xl font-display text-amber-400 mb-1 drop-shadow-md">حسین حکمیان</h3>
+                    <span className="text-white/60 text-sm font-bold uppercase tracking-wider">استراتژیست صعود</span>
+                  </div>
                 </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-display mb-2 text-emerald-400">حسین حکمیان</h3>
-                  <p className="text-white/50 font-medium leading-relaxed">
-                    خالق چشم‌اندازهای بزرگ و معمار ارشد صعود. حسین با نگاهی استراتژیک، کوهنوردی را از یک ورزش به یک مکتب رشد تبدیل کرده است تا هر گام، پله‌ای برای ارتقای شخصی باشد.
+                <div className="p-8 pt-4">
+                  <p className="text-white/70 font-medium leading-relaxed text-lg">
+                    خالق چشم‌اندازهای بزرگ. حسین کوهنوردی را از ورزش به مکتب رشد تبدیل کرده است. هر گام با او، پله‌ای برای ارتقای شخصی است.
                   </p>
                 </div>
               </motion.div>
 
-              <motion.div whileHover={{ y: -10 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl">
-                <div className="h-96 relative overflow-hidden">
+              <motion.div whileHover={{ y: -15 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl hover:border-amber-500/30 transition-all duration-500">
+                <div className="h-[28rem] relative overflow-hidden">
                   <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058638/photo_2026-02-14_12-13-34_zessog.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="امین طبسی" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-0 right-0 p-8 w-full">
+                    <h3 className="text-3xl font-display text-amber-400 mb-1 drop-shadow-md">امین طبسی</h3>
+                    <span className="text-white/60 text-sm font-bold uppercase tracking-wider">فرمانده میدان</span>
+                  </div>
                 </div>
-                <div className="p-8">
-                  <h3 className="text-2xl font-display mb-2 text-emerald-400">امین طبسی</h3>
-                  <p className="text-white/50 font-medium leading-relaxed">
-                    مردی که زبان کوهستان را می‌داند. با دو دهه تجربه در مسیرهای ایران، امین نماد اطمینان و امنیت است. حضور او یعنی یادگیری تکنیک‌های ناب و شنیدن داستان‌هایی که فقط کوه‌ها شنیده‌اند.
+                <div className="p-8 pt-4">
+                  <p className="text-white/70 font-medium leading-relaxed text-lg">
+                    امین زبان کوهستان را می‌داند. با دو دهه تجربه، او نماد اطمینان است. حضور او یعنی امنیت مطلق و شنیدن داستان‌هایی از قلب کوه.
                   </p>
                 </div>
               </motion.div>
 
-              <motion.div whileHover={{ y: -10 }} className="bg-white/5 backdrop-blur-md border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl relative flex flex-col items-center justify-center p-8 text-center">
-                <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-6">
-                  <Star className="h-10 w-10 text-emerald-400 animate-pulse" />
+              <motion.div whileHover={{ y: -15 }} className="bg-gradient-to-br from-amber-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl relative flex flex-col items-center justify-center p-10 text-center hover:border-amber-500/40 transition-all duration-500">
+                <div className="w-28 h-28 bg-amber-500/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:scale-110 transition-transform duration-500">
+                  <Sun className="h-14 w-14 text-amber-400 animate-spin" style={{ animationDuration: '12s' }} />
                 </div>
-                <h3 className="text-2xl font-display mb-4">جامعه‌ای از جنس رشد</h3>
-                <p className="text-white/40 leading-relaxed">
-                  اینجا فقط کوه نمی‌رویم؛ اینجا ذهنیت‌های برنده را در کنار هم صیقل می‌دهیم.
+                <h3 className="text-3xl font-display mb-6 text-white">جامعه‌ای از جنس نور</h3>
+                <p className="text-white/60 leading-relaxed text-lg font-medium">
+                  اینجا فقط کوه نمی‌رویم؛ اینجا ذهنیت‌های برنده را در کنار هم صیقل می‌دهیم و با انرژی خورشید هم‌مسیر می‌شویم.
                 </p>
               </motion.div>
             </div>
@@ -125,39 +188,36 @@ export default function Home() {
         </section>
 
         {/* Feature/Value Section */}
-        <section id="values" className="py-32 md:py-48 bg-slate-950 relative overflow-hidden px-6">
-          <div className="absolute inset-0 opacity-10">
-            <div
-              className="absolute inset-0 bg-cover bg-bottom bg-no-repeat"
-              style={{
-                backgroundImage: `url('https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058072/mountain_mist_minimal_1771057010986_gsyr9u.jpg')`,
-              }}
-            />
-          </div>
+        <section id="values" className="py-32 md:py-48 px-6 bg-transparent relative overflow-hidden">
+          {/* Subtle Warm Glow Background */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-amber-900/10 to-slate-950/20 z-0 pointer-events-none" />
+
 
           <div className="max-w-7xl mx-auto relative z-10">
             <div className="flex flex-col items-center text-center mb-24 md:mb-32">
-              <h2 className="text-4xl md:text-7xl font-display mb-8 tracking-tighter">چرا اوجِ رشد؟</h2>
-              <div className="h-2 w-48 bg-emerald-500 rounded-full mb-8 shadow-[0_0_20px_rgba(16,185,129,0.5)]" />
-              <p className="text-white/60 text-lg md:text-2xl max-w-3xl font-medium leading-relaxed font-display">طبیعت و تفکر استراتژیک، پیوندی ناگسستنی.</p>
+              <h2 className="text-4xl md:text-7xl font-display mb-8 tracking-tighter text-white drop-shadow-lg">چرا اوجِ رشد؟</h2>
+              <div className="h-2 w-48 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full mb-8 shadow-[0_0_20px_rgba(249,115,22,0.6)]" />
+              <p className="text-white/70 text-lg md:text-3xl max-w-3xl font-medium leading-relaxed font-display">
+                پیوندی میان استراتژی و طبیعت.
+              </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 md:gap-8">
               {[
                 {
-                  icon: <ShieldCheck className="h-8 w-8 md:h-10 md:w-10 text-emerald-400" />,
-                  title: "بدون سیاست، بدون هیاهو",
-                  desc: "در محیطی آرام و به دور از بحث‌های تفرقه‌انگیز، تمام تمرکز خود را روی صعود و یادگیری قرار دهید."
+                  icon: <ShieldCheck className="h-10 w-10 md:h-12 md:w-12 text-amber-400" />,
+                  title: "فضای امن و حرفه‌ای",
+                  desc: "بدون حاشیه، بدون سیاست. فقط تمرکز بر صعود و شبکه‌سازی در بالاترین سطح."
                 },
                 {
-                  icon: <Zap className="h-8 w-8 md:h-10 md:w-10 text-emerald-400" />,
-                  title: "شبکه‌سازی استراتژیک",
-                  desc: "در هر قدم با افرادی آشنا شوید که دغدغه‌های مشترک برای رشد شخصی و حرفه‌ای دارند."
+                  icon: <Zap className="h-10 w-10 md:h-12 md:w-12 text-amber-400" />,
+                  title: "انرژی خالص",
+                  desc: "از شهر و هیاهو جدا شوید تا با باتری‌های شارژ شده به کسب‌وکار خود بازگردید."
                 },
                 {
-                  icon: <Heart className="h-8 w-8 md:h-10 md:w-10 text-emerald-400" />,
-                  title: "بازیابی انرژی ذهنی",
-                  desc: "کوه صرفاً یک ورزش نیست؛ یک مدیتیشن عمیق برای بازگشت به محیط کار با قدرت مضاعف است."
+                  icon: <Heart className="h-10 w-10 md:h-12 md:w-12 text-amber-400" />,
+                  title: "ارتباطات ارزشمند",
+                  desc: "در مسیری دشوار اما لذت‌بخش، با افرادی هم‌قدم شوید که مثل شما فکر می‌کنند."
                 }
               ].map((item, i) => (
                 <motion.div
@@ -165,14 +225,16 @@ export default function Home() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white/5 backdrop-blur-sm p-8 md:p-12 rounded-[2.5rem] border border-white/5 hover:border-emerald-500/20 transition-all duration-500 group"
+                  transition={{ delay: i * 0.15 }}
+                  className="bg-slate-900/40 backdrop-blur-md p-10 md:p-14 rounded-[2.5rem] border border-white/5 hover:border-amber-500/40 hover:bg-slate-900/60 transition-all duration-500 group relative overflow-hidden"
                 >
-                  <div className="bg-white/5 w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-[2rem] flex items-center justify-center mb-8 group-hover:scale-110 group-hover:bg-emerald-500/10 transition-all duration-500 shadow-xl">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700" />
+
+                  <div className="bg-white/5 w-20 h-20 md:w-24 md:h-24 rounded-3xl flex items-center justify-center mb-10 group-hover:scale-110 group-hover:bg-amber-500/10 transition-all duration-500 shadow-xl border border-white/5 group-hover:border-amber-500/20">
                     {item.icon}
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-display mb-4 md:mb-6 text-white leading-tight">{item.title}</h3>
-                  <p className="text-white/40 leading-relaxed font-bold text-base md:text-lg group-hover:text-white/60 transition-colors">
+                  <h3 className="text-2xl md:text-4xl font-display mb-6 md:mb-8 text-white leading-tight">{item.title}</h3>
+                  <p className="text-white/50 leading-loose font-medium text-lg md:text-xl group-hover:text-white/80 transition-colors">
                     {item.desc}
                   </p>
                 </motion.div>

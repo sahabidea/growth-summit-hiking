@@ -4,14 +4,17 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 
-  /* Alpine Premium Palette */
-  --color-slate-950: #020617;
-  --color-slate-900: #0f172a;
-  --color-slate-800: #1e293b;
-  --color-slate-700: #334155;
-  --color-slate-400: #94a3b8;
-  --color-slate-200: #e2e8f0;
-  --color-slate-50: #f8fafc;
+  /* Alpine Natural Palette (Renamed) */
+  --color-alpine-950: #022c22;
+  /* Deep Forest Green base */
+  --color-alpine-900: #064e3b;
+  --color-alpine-800: #065f46;
+  --color-alpine-700: #047857;
+
+  /* Vibrant Accents */
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-cyan-300: #67e8f9;
 
   --color-pine-900: #064e3b;
   --color-pine-800: #065f46;
@@ -21,8 +24,8 @@
   --color-mist-100: #f1f5f9;
   --color-mist-50: #f8fafc;
 
-  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-lalezar), var(--font-vazirmatn), sans-serif;
+  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-lalezar), sans-serif;
 
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
@@ -64,6 +67,7 @@
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02", "cv01";
     line-height: 1.8;
+    font-family: 'Rubik', sans-serif;
   }
 
   h1,
@@ -71,9 +75,10 @@
   h3,
   h4,
   h5,
-  h6 {
+  h6,
+  .font-display {
+    font-family: 'Lalezar', cursive !important;
     @apply font-black tracking-tight leading-tight;
-    font-family: var(--font-display);
   }
 }
 

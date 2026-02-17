@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Vazirmatn, Lalezar } from "next/font/google";
+import { Rubik, Lalezar } from "next/font/google";
 import "./globals.css";
+import { createClient } from "@/lib/supabase/server";
+import Navbar from "@/components/ui/Navbar";
 
-const vazirmatn = Vazirmatn({
+const rubik = Rubik({
   subsets: ["arabic", "latin"],
-  variable: "--font-vazirmatn",
-  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+  variable: "--font-rubik",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
@@ -85,7 +87,7 @@ export const metadata: Metadata = {
   category: "ورزش و سلامت",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -106,20 +108,27 @@ export default function RootLayout({
     },
   };
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="fa" dir="rtl">
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#020617" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Rubik:wght@300..900&display=swap" rel="stylesheet" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body
-        className={`${vazirmatn.variable} ${lalezar.variable} antialiased font-sans`}
+        className={`${rubik.variable} ${lalezar.variable} antialiased font-sans`}
       >
+        <Navbar user={user} />
         {children}
       </body>
     </html>
