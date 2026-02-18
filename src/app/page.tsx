@@ -5,6 +5,7 @@ import { ShieldCheck, Zap, Heart, Compass, ArrowLeft, Star, Sun } from "lucide-r
 import Link from "next/link";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
+import CommunityGallery from "@/components/ui/CommunityGallery";
 import { useEffect, useState } from "react";
 
 const FloatingParticles = () => {
@@ -75,9 +76,7 @@ export default function Home() {
         <section className="relative min-h-screen flex items-center pt-24 px-6 pb-12">
           <div className="max-w-7xl mx-auto w-full text-center md:text-right">
             <div className="max-w-4xl">
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
+              <div
                 className="inline-flex items-center gap-3 bg-amber-500/10 backdrop-blur-md border border-amber-500/20 text-amber-300 px-5 py-2 rounded-full text-sm font-black mb-8 shadow-[0_0_20px_rgba(245,158,11,0.15)] hover:bg-amber-500/20 transition-colors cursor-default"
               >
                 <span className="relative flex h-2.5 w-2.5">
@@ -85,33 +84,25 @@ export default function Home() {
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
                 </span>
                 <span className="tracking-wide">اولین صعود: همین پنجشنبه</span>
-              </motion.div>
+              </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
+              <h1
                 className="text-6xl md:text-8xl lg:text-9xl font-display mb-10 leading-[1.1] text-white drop-shadow-2xl"
               >
                 فتح قله‌های <br />
                 <span className="bg-gradient-to-l from-amber-300 via-orange-400 to-rose-400 bg-clip-text text-transparent pb-2 inline-block">
                   انرژی و امید.
                 </span>
-              </motion.h1>
+              </h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+              <p
                 className="text-lg md:text-3xl text-white/90 max-w-2xl mb-12 font-medium leading-relaxed drop-shadow-lg"
               >
                 طلوعی دوباره برای ذهن و بدن. فضایی پر از نور و هوای تازه،
                 جایی که خستگی‌ها جا می‌مانند و قدرت‌ها بازیابی می‌شوند.
-              </motion.p>
+              </p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+              <div
                 className="flex flex-col sm:flex-row gap-5 md:gap-8 justify-center md:justify-start"
               >
                 <Link href="/apply" className="relative group bg-gradient-to-r from-amber-500 to-orange-600 text-white px-10 md:px-14 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-xl hover:shadow-[0_20px_50px_rgba(249,115,22,0.4)] transition-all flex items-center justify-center gap-3 active:scale-95 overflow-hidden">
@@ -123,7 +114,7 @@ export default function Home() {
                 <Link href="/hikes" className="bg-white/5 backdrop-blur-md text-white px-10 md:px-14 py-5 md:py-6 rounded-2xl md:rounded-3xl font-black text-xl border border-white/10 hover:bg-white/15 hover:border-amber-500/30 transition-all flex items-center justify-center gap-3 active:scale-95 group">
                   برنامه‌های صعود <Compass className="h-6 w-6 text-amber-400 group-hover:rotate-45 transition-transform duration-500" />
                 </Link>
-              </motion.div>
+              </div>
             </div>
           </div>
         </section>
@@ -184,6 +175,8 @@ export default function Home() {
                 </p>
               </motion.div>
             </div>
+
+            <CommunityGallery />
           </div>
         </section>
 

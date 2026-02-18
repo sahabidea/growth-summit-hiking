@@ -24,7 +24,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://owj-roshd.ir";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "اوجِ رشد | جامعه کوهنوردی اختصاصی",
+    default: "اوجِ رشد 79105202 | جامعه کوهنوردی اختصاصی",
     template: "%s | اوجِ رشد",
   },
   description:
