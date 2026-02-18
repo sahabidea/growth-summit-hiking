@@ -1,6 +1,6 @@
 "use server";
 
-import { createServerSupabase } from "@/lib/supabase-server"; // Admin role key
+import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
 export async function createEvent(data: {
@@ -10,8 +10,9 @@ export async function createEvent(data: {
     capacity: number;
     description: string;
     weather_note?: string;
+    image_url?: string;
 }) {
-    const supabase = createServerSupabase();
+    const supabase = await createClient();
 
     const { error } = await supabase.from("events").insert({
         title: data.title,
@@ -20,6 +21,7 @@ export async function createEvent(data: {
         capacity: data.capacity,
         description: data.description,
         weather_note: data.weather_note,
+        image_url: data.image_url,
         status: "scheduled",
     });
 
@@ -29,8 +31,29 @@ export async function createEvent(data: {
     return { success: true };
 }
 
+export async function updateEvent(eventId: string, data: {
+    title?: string;
+    date?: string;
+    location?: string;
+    capacity?: number;
+    description?: string;
+    weather_note?: string;
+    image_url?: string;
+}) {
+    const supabase = await createClient();
+
+    const { error } = await supabase.from("events").update({
+        ...data
+    }).eq("id", eventId);
+
+    if (error) return { success: false, error: error.message };
+    revalidatePath("/admin");
+    revalidatePath("/dashboard");
+    return { success: true };
+}
+
 export async function fetchAllEvents() {
-    const supabase = createServerSupabase();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("events")
@@ -42,7 +65,7 @@ export async function fetchAllEvents() {
 }
 
 export async function fetchEventAttendees(eventId: string) {
-    const supabase = createServerSupabase();
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from("bookings")
@@ -70,7 +93,7 @@ export async function fetchEventAttendees(eventId: string) {
 }
 
 export async function cancelEvent(eventId: string) {
-    const supabase = createServerSupabase();
+    const supabase = await createClient();
 
     const { error } = await supabase
         .from("events")

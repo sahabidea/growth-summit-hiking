@@ -5,6 +5,7 @@ import { Mountain, Menu, X, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User } from "@supabase/supabase-js";
+import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
     { href: "/#values", label: "ارزش‌ها" },
@@ -17,7 +18,13 @@ interface NavbarProps {
 }
 
 export default function Navbar({ user }: NavbarProps) {
+    const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
+
+    // Hide Navbar on Dashboard
+    if (pathname?.startsWith("/dashboard")) {
+        return null;
+    }
 
     return (
         <>

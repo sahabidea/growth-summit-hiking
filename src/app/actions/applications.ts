@@ -60,3 +60,18 @@ export async function updateApplicationStatus(id: string, status: string) {
 
     return { success: true };
 }
+
+export async function updateBulkApplicationStatus(ids: string[], status: string) {
+    const supabase = createServerSupabase();
+
+    const { error } = await supabase
+        .from("applications")
+        .update({ status })
+        .in("id", ids);
+
+    if (error) {
+        return { success: false, error: error.message };
+    }
+
+    return { success: true };
+}

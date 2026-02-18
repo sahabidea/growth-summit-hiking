@@ -23,6 +23,7 @@ export interface Event {
     description: string;
     status: "scheduled" | "cancelled" | "completed";
     weather_note?: string;
+    image_url?: string;
     user_booking_status?: "confirmed" | "waitlist" | null;
 }
 
