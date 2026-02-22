@@ -35,21 +35,7 @@ export default function HikesPage() {
 
             <FloatingParticles count={25} color="bg-amber-400" />
 
-            {/* Navigation */}
-            <nav className="fixed w-full z-50 px-6 py-6">
-                <div className="max-w-7xl mx-auto backdrop-blur-md bg-slate-900/50 rounded-3xl px-8 py-4 flex justify-between items-center border border-white/10 shadow-lg">
-                    <Link href="/" className="flex items-center gap-3 text-white/60 hover:text-white transition-colors font-black text-sm group">
-                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        <span>کمپ اصلی</span>
-                    </Link>
-                    <div className="flex items-center gap-3">
-                        <div className="bg-gradient-to-br from-amber-400 to-orange-500 p-1.5 rounded-lg shadow-lg shadow-orange-500/20">
-                            <Mountain className="h-5 w-5 text-white" />
-                        </div>
-                        <span className="font-black text-xl tracking-tighter uppercase text-white">برنامه‌ها</span>
-                    </div>
-                </div>
-            </nav>
+            {/* Navigation handled by RootLayout */}
 
             <main className="pt-40 px-6 relative z-10">
                 <div className="max-w-6xl mx-auto">

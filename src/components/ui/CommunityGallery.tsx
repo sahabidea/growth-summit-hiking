@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight, ChevronLeft, Camera } from "lucide-react";
+import Image from "next/image";
 
 const images = [
     "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771390677/photo_2026-02-01_20-24-07_dogygr.jpg",
@@ -112,10 +113,12 @@ export default function CommunityGallery() {
                             transition={{ duration: 0.6, ease: "easeOut" }}
                         >
                             <div className="w-[280px] h-[350px] md:w-[380px] md:h-[480px] rounded-[2.5rem] overflow-hidden relative group cursor-pointer border-2 border-white/5 hover:border-amber-500/50 transition-all duration-500 shadow-2xl bg-slate-900/50">
-                                <img
+                                <Image
                                     src={src}
+                                    fill
                                     alt={`Community Trip`}
-                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 filter brightness-90 group-hover:brightness-100"
+                                    sizes="(max-width: 768px) 280px, 380px"
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1 filter brightness-90 group-hover:brightness-100"
                                 />
 
                                 {/* Overlay Gradient */}

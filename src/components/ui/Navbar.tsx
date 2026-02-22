@@ -1,25 +1,48 @@
 "use client";
 
-import { useState } from "react";
 import { Mountain, Menu, X, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { User } from "@supabase/supabase-js";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_LINKS = [
     { href: "/#values", label: "ارزش‌ها" },
     { href: "/#guides", label: "راهنمایان" },
     { href: "/hikes", label: "برنامه‌ها" },
+    { href: "/blog", label: "وبلاگ" },
 ];
 
 interface NavbarProps {
     user?: User | null;
 }
 
-export default function Navbar({ user }: NavbarProps) {
+export default function Navbar({ user: initialUser }: NavbarProps) {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const [user, setUser] = useState<User | null>(initialUser || null);
+
+    useEffect(() => {
+        const supabase = createClient();
+
+        // Sync with initial user if it changes (e.g. server re-render)
+        setUser(initialUser || null);
+
+        // Listen for auth changes on client
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                setUser(session.user);
+            } else {
+                setUser(null);
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, [initialUser]);
 
     // Hide Navbar on Dashboard
     if (pathname?.startsWith("/dashboard")) {

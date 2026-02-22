@@ -6,7 +6,7 @@ import { loginWithPassword } from "@/app/actions/auth-password";
 import { sendOtp, verifyOtp } from "@/app/actions/auth-otp";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Lock, Smartphone, Mail, Loader2, Play } from "lucide-react";
+import { Lock, Smartphone, Mail, Loader2, Play, Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
     const router = useRouter();
@@ -18,6 +18,7 @@ export default function LoginPage() {
     const [phone, setPhone] = useState("");
     const [otpSent, setOtpSent] = useState(false);
     const [otpCode, setOtpCode] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
 
     const handlePasswordLogin = async (formData: FormData) => {
         setLoading(true);
@@ -106,11 +107,18 @@ export default function LoginPage() {
                             <Lock className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-amber-400 transition-colors" />
                             <input
                                 name="password"
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="رمز عبور"
                                 className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-14 py-5 focus:outline-none focus:border-amber-500 focus:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all text-white placeholder:text-white/20 font-bold text-lg"
                                 required
                             />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors"
+                            >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
                         </div>
                     </div>
 

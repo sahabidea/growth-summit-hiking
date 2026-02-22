@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { ShieldCheck, Zap, Heart, Compass, ArrowLeft, Star, Sun } from "lucide-react";
 import Link from "next/link";
-import Navbar from "@/components/ui/Navbar";
+import Image from "next/image";
 import Footer from "@/components/ui/Footer";
 import CommunityGallery from "@/components/ui/CommunityGallery";
 import { useEffect, useState } from "react";
@@ -69,8 +69,6 @@ export default function Home() {
         <FloatingParticles />
       </div>
 
-      <Navbar />
-
       <main className="relative z-10">
         {/* Full Height Hero Section */}
         <section className="relative min-h-screen flex items-center pt-24 px-6 pb-12">
@@ -135,7 +133,7 @@ export default function Home() {
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               <motion.div whileHover={{ y: -15 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl hover:border-amber-500/30 transition-all duration-500">
                 <div className="h-[28rem] relative overflow-hidden">
-                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771224157/photo_2026-02-14_14-19-59_llyvov.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="حسین حکمیان" />
+                  <Image src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771224157/photo_2026-02-14_14-19-59_llyvov.jpg" fill className="object-cover transition-transform duration-700 group-hover:scale-110" alt="حسین حکمیان" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                   <div className="absolute bottom-0 right-0 p-8 w-full">
                     <h3 className="text-3xl font-display text-amber-400 mb-1 drop-shadow-md">حسین حکمیان</h3>
@@ -151,7 +149,7 @@ export default function Home() {
 
               <motion.div whileHover={{ y: -15 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl hover:border-amber-500/30 transition-all duration-500">
                 <div className="h-[28rem] relative overflow-hidden">
-                  <img src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058638/photo_2026-02-14_12-13-34_zessog.jpg" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="امین طبسی" />
+                  <Image src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771058638/photo_2026-02-14_12-13-34_zessog.jpg" fill className="object-cover transition-transform duration-700 group-hover:scale-110" alt="امین طبسی" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                   <div className="absolute bottom-0 right-0 p-8 w-full">
                     <h3 className="text-3xl font-display text-amber-400 mb-1 drop-shadow-md">امین طبسی</h3>
@@ -227,7 +225,7 @@ export default function Home() {
                     {item.icon}
                   </div>
                   <h3 className="text-2xl md:text-4xl font-display mb-6 md:mb-8 text-white leading-tight">{item.title}</h3>
-                  <p className="text-white/50 leading-loose font-medium text-lg md:text-xl group-hover:text-white/80 transition-colors">
+                  <p className="text-white/70 leading-loose font-medium text-lg md:text-xl group-hover:text-white/90 transition-colors">
                     {item.desc}
                   </p>
                 </motion.div>
