@@ -1,14 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createEvent, fetchAllEvents, updateEvent } from "@/app/actions/admin-events";
-import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon } from "lucide-react";
+import { createEvent, fetchAllEvents, updateEvent, completeEventWithGPX } from "@/app/actions/admin-events";
+import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map } from "lucide-react";
+import MapPicker from "@/components/MapPicker";
 
 export function EventsManager() {
     const [events, setEvents] = useState<any[]>([]);
     const [isLoadingEvents, setIsLoadingEvents] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
+
+    // Complete Event State
+    const [showCompleteModal, setShowCompleteModal] = useState(false);
+    const [selectedEventToComplete, setSelectedEventToComplete] = useState<any>(null);
+    const [isSubmittingGPX, setIsSubmittingGPX] = useState(false);
 
     // Form State
     const [editId, setEditId] = useState<string | null>(null);
@@ -19,6 +25,9 @@ export function EventsManager() {
     const [desc, setDesc] = useState("برنامه کوهنوردی با تمرکز بر سکوت و ذهن‌آگاهی. ساعت ۸ صبح میدان.");
     const [weather, setWeather] = useState("صاف و آفتابی");
     const [imageUrl, setImageUrl] = useState("");
+    const [equipmentList, setEquipmentList] = useState("");
+    const [specialNotes, setSpecialNotes] = useState("");
+    const [mapLink, setMapLink] = useState("");
 
     async function loadEvents() {
         setIsLoadingEvents(true);
@@ -51,6 +60,9 @@ export function EventsManager() {
         setDesc("برنامه کوهنوردی با تمرکز بر سکوت و ذهن‌آگاهی. ساعت ۸ صبح میدان.");
         setWeather("صاف و آفتابی");
         setImageUrl("");
+        setEquipmentList("");
+        setSpecialNotes("");
+        setMapLink("");
         setEditId(null);
         setShowForm(false);
     };
@@ -68,6 +80,9 @@ export function EventsManager() {
         setDesc(event.description);
         setWeather(event.weather_note || "صاف و آفتابی");
         setImageUrl(event.image_url || "");
+        setEquipmentList(event.equipment_list || "");
+        setSpecialNotes(event.special_notes || "");
+        setMapLink(event.map_link || "");
         setShowForm(true);
     };
 
@@ -83,7 +98,10 @@ export function EventsManager() {
                 capacity: Number(capacity),
                 description: desc,
                 weather_note: weather,
-                image_url: imageUrl
+                image_url: imageUrl,
+                equipment_list: equipmentList,
+                special_notes: specialNotes,
+                map_link: mapLink
             };
 
             let result;
@@ -104,6 +122,28 @@ export function EventsManager() {
             alert("خطای ناشناخته رخ داد");
         } finally {
             setIsSubmitting(false);
+        }
+    }
+
+    async function handleCompleteEvent(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        if (!selectedEventToComplete) return;
+        try {
+            setIsSubmittingGPX(true);
+            const formData = new FormData(e.currentTarget);
+            const res = await completeEventWithGPX(selectedEventToComplete.id, formData);
+            if (res.success) {
+                setShowCompleteModal(false);
+                setSelectedEventToComplete(null);
+                loadEvents();
+            } else {
+                alert("خطا در پردازش فایل: " + res.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("خطای ناشناخته رخ داد");
+        } finally {
+            setIsSubmittingGPX(false);
         }
     }
 
@@ -173,13 +213,52 @@ export function EventsManager() {
                         />
                     </div>
 
+                    <div className="md:col-span-2 space-y-4">
+                        <label className="text-xs text-white/40 flex items-center gap-1">
+                            <Map className="w-4 h-4 text-emerald-400" />
+                            انتخاب موقعیت روی نقشه (اختیاری)
+                        </label>
+                        <MapPicker
+                            onLocationSelect={(link: string) => setMapLink(link)}
+                        />
+                        <div className="relative">
+                            <LinkIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+                            <input
+                                placeholder="https://maps.google.com/..."
+                                className="w-full bg-white/5 border border-white/10 rounded-xl pr-10 pl-4 py-3 focus:border-emerald-500 transition-colors outline-none dir-ltr text-left font-mono text-sm"
+                                value={mapLink} onChange={e => setMapLink(e.target.value)}
+                            />
+                        </div>
+                        <p className="text-white/40 text-xs mt-1">
+                            میتوانید روی نقشه بالا کلیک کنید تا لینک مختصات به طور خودکار در کادر قرار گیرد، و یا اینکه لینک را خودتان مستقیماً از نشان یا مپس کپی و پِیست (Paste) کنید.
+                        </p>
+                    </div>
+
                     <div className="md:col-span-2 space-y-1">
                         <label className="text-xs text-white/40 mr-2">توضیحات تکمیلی</label>
                         <textarea
-                            placeholder="توضیحات"
+                            placeholder="توضیحات کلی برنامه..."
                             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-[100px] focus:border-emerald-500 transition-colors outline-none"
                             value={desc} onChange={e => setDesc(e.target.value)}
                             required
+                        />
+                    </div>
+
+                    <div className="md:col-span-1 space-y-1">
+                        <label className="text-xs text-white/40 mr-2">تجهیزات مورد نیاز</label>
+                        <textarea
+                            placeholder="مثلاً: کفش کوه، کوله پشتی، آب..."
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-[90px] focus:border-emerald-500 transition-colors outline-none"
+                            value={equipmentList} onChange={e => setEquipmentList(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="md:col-span-1 space-y-1">
+                        <label className="text-xs text-white/40 mr-2">نکات مهم برنامه</label>
+                        <textarea
+                            placeholder="مثلاً: همراه داشتن کارت شناسایی، عدم استعمال دخانیات..."
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-[90px] focus:border-emerald-500 transition-colors outline-none"
+                            value={specialNotes} onChange={e => setSpecialNotes(e.target.value)}
                         />
                     </div>
 
@@ -268,9 +347,20 @@ export function EventsManager() {
                             >
                                 <Edit className="w-4 h-4" />
                             </button>
-                            <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${event.status === 'scheduled' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-white/5 text-white/30'
+                            {event.status === 'scheduled' && (
+                                <button
+                                    onClick={() => { setSelectedEventToComplete(event); setShowCompleteModal(true); }}
+                                    className="bg-emerald-500/10 p-2 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors"
+                                    title="خاتمه برنامه و آپلود فایل مسیر"
+                                >
+                                    <CheckCircle className="w-4 h-4" />
+                                </button>
+                            )}
+                            <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${event.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' :
+                                event.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' :
+                                    'bg-white/5 text-white/30'
                                 }`}>
-                                {event.status === 'scheduled' ? 'برنامه‌ریزی شده' : event.status}
+                                {event.status === 'scheduled' ? 'در انتظار برگزاری' : event.status === 'completed' ? 'پایان‌یافته' : event.status}
                             </span>
                         </div>
                     </div>
@@ -279,6 +369,53 @@ export function EventsManager() {
                     <div className="text-center py-10 text-white/30">هنوز برنامه‌ای تعریف نشده است.</div>
                 )}
             </div>
+
+            {/* Complete Event GPX Modal */}
+            {showCompleteModal && selectedEventToComplete && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
+                        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                            <CheckCircle className="text-emerald-400 w-5 h-5" />
+                            ثبت گزارش صعود
+                        </h3>
+                        <p className="text-white/50 text-sm mb-6">
+                            برای خاتمه برنامه «{selectedEventToComplete.title}»، لطفاً فایل مسیر (GPX) را آپلود کنید تا مسافت، ارتفاع و کالری به صورت خودکار محاسبه شود.
+                        </p>
+
+                        <form onSubmit={handleCompleteEvent} className="space-y-4">
+                            <div className="border border-dashed border-white/20 rounded-2xl p-6 text-center hover:border-emerald-500/50 transition-colors bg-white/5 relative group cursor-pointer">
+                                <Upload className="w-8 h-8 text-white/30 mx-auto mb-3 group-hover:text-emerald-400 transition-colors" />
+                                <div className="text-sm font-bold text-white/70">انتخاب فایل مسیر (GPX)</div>
+                                <div className="text-xs text-white/40 mt-1">اختیاری - بدون فایل هم می‌توانید برنامه را تمام کنید</div>
+                                <input
+                                    type="file"
+                                    name="file"
+                                    accept=".gpx,application/gpx+xml"
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                />
+                            </div>
+
+                            <div className="flex gap-3 justify-end mt-6">
+                                <button
+                                    type="button"
+                                    onClick={() => { setShowCompleteModal(false); setSelectedEventToComplete(null); }}
+                                    className="px-5 py-2.5 rounded-xl hover:bg-white/5 text-white/60 font-bold transition-colors"
+                                >
+                                    انصراف
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmittingGPX}
+                                    className="px-6 py-2.5 bg-emerald-500 text-slate-950 rounded-xl font-black shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+                                >
+                                    {isSubmittingGPX ? <Loader2 className="animate-spin w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                                    خاتمه و استخراج آمار
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

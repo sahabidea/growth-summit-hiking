@@ -1,5 +1,5 @@
 -- 1. Add image_url column to events
-alter table events add column if not exists image_url text;
+alter table public.events add column if not exists image_url text;
 
 -- 2. Create OTP functions (save_otp and verify_otp)
 -- Function to save OTP (Security Definer to bypass RLS)
@@ -62,5 +62,29 @@ CREATE TABLE IF NOT EXISTS public.event_comments (
 );
 
 ALTER TABLE public.event_comments ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Anyone can view comments" ON public.event_comments;
 CREATE POLICY "Anyone can view comments" ON public.event_comments FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can create comments" ON public.event_comments;
 CREATE POLICY "Authenticated users can create comments" ON public.event_comments FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Admins can delete comments" ON public.event_comments;
+CREATE POLICY "Admins can delete comments" ON public.event_comments FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE profiles.id = auth.uid() AND profiles.role = 'admin'
+  )
+);
+
+-- 5. Add GPX Tracking and Statistics Columns to Events
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS track_file_url text;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS distance_km numeric;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS elevation_gain numeric;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS duration_minutes integer;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS calories_burned integer;
+
+-- 6. Add Equipment and Notes to Events
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS equipment_list text;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS special_notes text;
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS map_link text;

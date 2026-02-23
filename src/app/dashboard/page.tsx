@@ -160,7 +160,14 @@ export default async function DashboardPage() {
                                             )}
                                         </div>
 
-                                        <div className="flex items-center gap-4 border-t border-white/5 pt-6">
+                                        <div className="flex flex-col sm:flex-row items-center gap-4 border-t border-white/5 pt-6">
+                                            <Link
+                                                href={`/hikes/${nextEvent.id}`}
+                                                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-800 text-white font-bold hover:bg-slate-700 transition-colors shadow-lg border border-white/10 text-center"
+                                            >
+                                                جزئیات و تبادل نظر
+                                            </Link>
+
                                             {profile.subscription_status === 'active' ? (
                                                 <div className="w-full sm:w-auto">
                                                     <JoinButton eventId={nextEvent.id} status={nextEvent.user_booking_status} />
