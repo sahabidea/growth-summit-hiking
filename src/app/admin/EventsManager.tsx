@@ -218,9 +218,20 @@ export function EventsManager() {
                             <Map className="w-4 h-4 text-emerald-400" />
                             انتخاب موقعیت روی نقشه (اختیاری)
                         </label>
-                        <MapPicker
-                            onLocationSelect={(link: string) => setMapLink(link)}
-                        />
+                        {(() => {
+                            const parsedLatMatch = mapLink.match(/[?&]q=([\d.-]+),([\d.-]+)/);
+                            const initialLat = parsedLatMatch ? parseFloat(parsedLatMatch[1]) : undefined;
+                            const initialLng = parsedLatMatch ? parseFloat(parsedLatMatch[2]) : undefined;
+
+                            return (
+                                <MapPicker
+                                    key={editId || 'new'}
+                                    initialLat={initialLat}
+                                    initialLng={initialLng}
+                                    onLocationSelect={(link: string) => setMapLink(link)}
+                                />
+                            );
+                        })()}
                         <div className="relative">
                             <LinkIcon className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
                             <input
