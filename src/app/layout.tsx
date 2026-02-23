@@ -4,6 +4,7 @@ import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/ui/Navbar";
 import LiveChatWidget from "@/components/ui/LiveChatWidget";
+import AutoLogoutProvider from "@/components/ui/AutoLogoutProvider";
 
 const rubik = Rubik({
   subsets: ["arabic", "latin"],
@@ -130,8 +131,10 @@ export default async function RootLayout({
         className={`${rubik.variable} ${lalezar.variable} antialiased font-sans`}
       >
         <Navbar user={user} />
-        {children}
-        <LiveChatWidget />
+        <AutoLogoutProvider>
+          {children}
+          <LiveChatWidget />
+        </AutoLogoutProvider>
       </body>
     </html>
   );

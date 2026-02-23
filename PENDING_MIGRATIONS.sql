@@ -51,3 +51,16 @@ GRANT EXECUTE ON FUNCTION public.verify_otp(text, text, text) TO anon, authentic
 UPDATE public.profiles
 SET role = 'admin'
 WHERE phone_number = '09222453571';
+
+-- 4. Add Event Comments Table
+CREATE TABLE IF NOT EXISTS public.event_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+ALTER TABLE public.event_comments ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view comments" ON public.event_comments FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can create comments" ON public.event_comments FOR INSERT WITH CHECK (auth.role() = 'authenticated');

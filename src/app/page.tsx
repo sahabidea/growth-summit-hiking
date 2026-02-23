@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Footer from "@/components/ui/Footer";
 import CommunityGallery from "@/components/ui/CommunityGallery";
+import FAQ from "@/components/ui/FAQ";
 import { useEffect, useState } from "react";
 
 const FloatingParticles = () => {
@@ -233,6 +234,9 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* FAQ Section */}
+        <FAQ />
       </main>
 
       <Footer />
