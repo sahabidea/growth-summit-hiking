@@ -12,7 +12,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { EventsManager } from "./EventsManager";
+import EventsManager from "./EventsManager";
 import { ChatManager } from "./ChatManager";
 
 interface Application {

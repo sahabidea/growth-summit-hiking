@@ -3,13 +3,14 @@
 import { LogOut, User, LayoutDashboard, Trophy, Target, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
-import { signout } from "@/app/actions/auth-user";
+import { createClient } from "@/lib/supabase/client";
 
 interface UserDropdownProps {
     user: {
         full_name: string;
         phone_number: string | null;
         subscription_status: string;
+        avatar_url?: string | null;
     };
 }
 
@@ -39,8 +40,12 @@ export function UserDropdown({ user }: UserDropdownProps) {
                 onClick={() => setIsOpen(!isOpen)}
                 className="flex items-center gap-2 group outline-none"
             >
-                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                    {initial}
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform overflow-hidden relative border border-white/10">
+                    {user.avatar_url ? (
+                        <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                        initial
+                    )}
                 </div>
                 <ChevronDown className={`w-4 h-4 text-white/50 transition-transform ${isOpen ? "rotate-180" : ""}`} />
             </button>
@@ -76,14 +81,22 @@ export function UserDropdown({ user }: UserDropdownProps) {
                             <span className="text-sm font-medium">چالش‌های هفتگی</span>
                         </div>
 
-                        <div className="h-px bg-white/5 mx-2 my-1" />
-
-                        <form action={signout}>
-                            <button type="submit" className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500/10 text-rose-400/80 hover:text-rose-400 transition-colors group">
-                                <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                <span className="text-sm font-medium">خروج از حساب</span>
-                            </button>
-                        </form>
+                        <button
+                            onClick={async () => {
+                                try {
+                                    const supabase = createClient();
+                                    await supabase.auth.signOut();
+                                    window.location.href = "/";
+                                } catch (e) {
+                                    console.error(e);
+                                    window.location.href = "/";
+                                }
+                            }}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-rose-500/10 text-rose-400/80 hover:text-rose-400 transition-colors group"
+                        >
+                            <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span className="text-sm font-medium">خروج از حساب</span>
+                        </button>
                     </div>
                 </div>
             )}

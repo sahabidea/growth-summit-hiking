@@ -16,6 +16,7 @@ export async function createEvent(data: {
     map_link?: string;
 }) {
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
     const { error } = await supabase.from("events").insert({
         title: data.title,
@@ -29,6 +30,7 @@ export async function createEvent(data: {
         special_notes: data.special_notes,
         map_link: data.map_link,
         status: "scheduled",
+        organizer_id: user?.id
     });
 
     if (error) return { success: false, error: error.message };
@@ -66,7 +68,13 @@ export async function fetchAllEvents() {
 
     const { data, error } = await supabase
         .from("events")
-        .select("*")
+        .select(`
+            *,
+            profiles:organizer_id (
+                full_name,
+                avatar_url
+            )
+        `)
         .order("date", { ascending: false });
 
     if (error) return { success: false, error: error.message };

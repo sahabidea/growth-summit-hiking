@@ -2,9 +2,10 @@ import { getEventDetails } from "@/app/actions/event-comments";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, User, CalendarDays, MapPin, Users, MessageCircle, Activity, Mountain, Clock, Flame, Backpack, AlertCircle } from "lucide-react";
+import { ArrowLeft, User, CalendarDays, MapPin, Users, MessageCircle, Activity, Mountain, Clock, Flame, Backpack, AlertCircle, Crown, LogIn } from "lucide-react";
 import EventCommentsClient from "./EventCommentsClient";
 import Image from "next/image";
+import { JoinButton } from "@/app/dashboard/JoinButton";
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -72,7 +73,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                         </div>
                         <div className="flex items-center gap-2">
                             <Users className="h-5 w-5 text-cyan-400" />
-                            ظرفیت: {event.capacity} نفر
+                            ظرفیت: {event.attendeesCount || 0} / {event.capacity} نفر
                         </div>
                     </div>
 
@@ -87,6 +88,36 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                 priority
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+                        </div>
+                    )}
+
+                    {/* Join / Registration Block */}
+                    {event.status === 'scheduled' && (
+                        <div className="mb-16 bg-slate-900/80 backdrop-blur-xl rounded-[2rem] p-8 border border-white/10 shadow-2xl relative overflow-hidden flex flex-col items-center text-center">
+                            <div className="absolute w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[80px] -z-10" />
+
+                            <h2 className="text-2xl font-black mb-4">ثبت‌نام در این برنامه</h2>
+
+                            {!event.isAuthenticated ? (
+                                <>
+                                    <p className="text-white/60 mb-8 max-w-md mx-auto">برای شرکت در برنامه‌های باشگاه، ابتدا باید وارد حساب کاربری خود شوید و اشتراک تهیه کنید.</p>
+                                    <Link href="/login" className="px-8 py-4 bg-emerald-500 text-slate-950 rounded-2xl font-bold hover:bg-emerald-400 hover:scale-105 transition-all shadow-xl shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                        <LogIn className="w-5 h-5" /> ورود و ثبت‌نام
+                                    </Link>
+                                </>
+                            ) : event.subscriptionStatus !== 'active' ? (
+                                <>
+                                    <p className="text-white/60 mb-8 max-w-md mx-auto">حساب کاربری شما فعال نیست. برای شرکت در این برنامه، نیاز به اشتراک فعال دارید.</p>
+                                    <button className="px-8 py-4 bg-amber-500 text-slate-950 rounded-2xl font-bold hover:bg-amber-400 transition-all shadow-xl shadow-amber-500/20 flex items-center justify-center gap-2">
+                                        <Crown className="w-5 h-5" /> خرید اشتراک برای شرکت
+                                    </button>
+                                </>
+                            ) : (
+                                <div className="w-full max-w-sm mx-auto">
+                                    <p className="text-white/60 mb-6 font-medium">شما اشتراک فعال دارید. با کلیک روی دکمه زیر می‌توانید جایگاه خود را در این برنامه رزرو کنید.</p>
+                                    <JoinButton eventId={event.id} status={event.userBookingStatus} />
+                                </div>
+                            )}
                         </div>
                     )}
                 </header>

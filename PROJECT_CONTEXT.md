@@ -17,6 +17,7 @@
 | **Bloom** | Growth & Digital Marketing | Ad Campaigns, Market Analysis, Growth Hacking. |
 | **Grove** | Content & SEO | Content Creation, Environmental Impact Reporting. |
 | **Sentinel** | QA & Security Lead | Test Cases, Penetration Testing, Stability. |
+| **Systemization** | Top Google Systems Expert | Standard Operating Procedures, System Integrity, Scale. |
 
 ## 🤖 Functional Site Agents (The Council)
 | Agent | Role | Status | Logic Path |

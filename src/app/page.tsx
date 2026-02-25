@@ -164,14 +164,20 @@ export default function Home() {
                 </div>
               </motion.div>
 
-              <motion.div whileHover={{ y: -15 }} className="bg-gradient-to-br from-amber-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl relative flex flex-col items-center justify-center p-10 text-center hover:border-amber-500/40 transition-all duration-500">
-                <div className="w-28 h-28 bg-amber-500/20 rounded-full flex items-center justify-center mb-8 shadow-[0_0_40px_rgba(245,158,11,0.3)] group-hover:scale-110 transition-transform duration-500">
-                  <Sun className="h-14 w-14 text-amber-400 animate-spin" style={{ animationDuration: '12s' }} />
+              <motion.div whileHover={{ y: -15 }} className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] overflow-hidden group shadow-2xl hover:border-amber-500/30 transition-all duration-500">
+                <div className="h-[28rem] relative overflow-hidden">
+                  <Image src="https://res.cloudinary.com/dszhmx8ny/image/upload/v1771911000/photo_2026-02-24_08-39-33_oaiffm.jpg" fill className="object-cover object-[50%_60%] transition-transform duration-700 group-hover:scale-110" alt="مهدی صفرائی و محمدرضا بنادکوکی" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                  <div className="absolute bottom-0 right-0 p-8 w-full">
+                    <h3 className="text-3xl font-display text-amber-400 mb-1 drop-shadow-md leading-tight">مهدی صفرائی <br /><span className="text-2xl text-amber-200">و محمدرضا بنادکوکی</span></h3>
+                    <span className="text-white/60 text-sm font-bold uppercase tracking-wider">راهنمایان ارشد</span>
+                  </div>
                 </div>
-                <h3 className="text-3xl font-display mb-6 text-white">جامعه‌ای از جنس نور</h3>
-                <p className="text-white/60 leading-relaxed text-lg font-medium">
-                  اینجا فقط کوه نمی‌رویم؛ اینجا ذهنیت‌های برنده را در کنار هم صیقل می‌دهیم و با انرژی خورشید هم‌مسیر می‌شویم.
-                </p>
+                <div className="p-8 pt-4">
+                  <p className="text-white/70 font-medium leading-relaxed text-lg">
+                    کوچ، کارآفرین و طبیعت‌گرد. تلفیقی از دانش توسعه فردی، تجربه کارآفرینی و عشق به طبیعت که در مسیر صعود و تکامل، همراه شما هستند.
+                  </p>
+                </div>
               </motion.div>
             </div>
 

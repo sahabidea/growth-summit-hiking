@@ -31,7 +31,49 @@ export async function getEventDetails(eventId: string) {
 
     if (commentsError) return { success: false, error: commentsError.message, data: event };
 
-    return { success: true, data: { ...event, comments } };
+    // Fetch attendee count (just the number)
+    const { count: attendeesCount } = await supabase
+        .from("bookings")
+        .select("*", { count: "exact", head: true })
+        .eq("event_id", event.id)
+        .eq("status", "confirmed");
+
+    // Check if the current user is booked and their info
+    let userBookingStatus = null;
+    let subscriptionStatus = null;
+    let isAuthenticated = false;
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (user) {
+        isAuthenticated = true;
+        const { data: booking } = await supabase
+            .from("bookings")
+            .select("status")
+            .eq("event_id", event.id)
+            .eq("user_id", user.id)
+            .single();
+        if (booking) userBookingStatus = booking.status;
+
+        const { data: profile } = await supabase
+            .from("profiles")
+            .select("subscription_status")
+            .eq("id", user.id)
+            .single();
+        if (profile) subscriptionStatus = profile.subscription_status;
+    }
+
+    return {
+        success: true,
+        data: {
+            ...event,
+            comments,
+            attendeesCount: attendeesCount || 0,
+            userBookingStatus,
+            subscriptionStatus,
+            isAuthenticated
+        }
+    };
 }
 
 export async function addEventComment(eventId: string, content: string) {

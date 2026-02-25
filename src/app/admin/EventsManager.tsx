@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { createEvent, fetchAllEvents, updateEvent, completeEventWithGPX } from "@/app/actions/admin-events";
 import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map } from "lucide-react";
 import MapPicker from "@/components/MapPicker";
+import { createClient } from "@/lib/supabase/client";
 
-export function EventsManager() {
+export default function EventsManager({ userRole = 'member', userId = '' }: { userRole?: string, userId?: string }) {
     const [events, setEvents] = useState<any[]>([]);
     const [isLoadingEvents, setIsLoadingEvents] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -327,106 +328,137 @@ export function EventsManager() {
             )}
 
             <div className="space-y-4">
-                {events.map(event => (
-                    <div key={event.id} className="bg-slate-950/50 p-4 rounded-2xl border border-white/5 flex gap-4 items-center group hover:border-emerald-500/30 transition-all">
-                        {event.image_url ? (
-                            <img
-                                src={event.image_url}
-                                alt={event.title}
-                                className="w-16 h-16 rounded-xl object-cover border border-white/10"
-                            />
-                        ) : (
-                            <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                                <Calendar className="w-6 h-6 text-white/20" />
-                            </div>
-                        )}
+                {events.map((event) => {
+                    // Check permissions
+                    const isOwner = userRole === 'owner';
+                    const isAdmin = userRole === 'admin';
+                    const isOrganizer = userId === event.organizer_id;
+                    const canEdit = isOwner || isAdmin || isOrganizer;
+                    const organizer = event.profiles; // From our join
 
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-lg mb-1 truncate">{event.title}</h3>
-                            <p className="text-white/40 text-sm flex flex-wrap items-center gap-3">
-                                <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(event.date).toLocaleDateString("fa-IR")}</span>
-                                <span>📍 {event.location}</span>
-                                <span>👥 {event.capacity} نفر</span>
-                            </p>
-                        </div>
-
-                        <div className="flex flex-col sm:flex-row gap-2 items-end sm:items-center">
-                            <button
-                                onClick={() => handleEdit(event)}
-                                className="bg-white/5 p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors"
-                                title="ویرایش"
-                            >
-                                <Edit className="w-4 h-4" />
-                            </button>
-                            {event.status === 'scheduled' && (
-                                <button
-                                    onClick={() => { setSelectedEventToComplete(event); setShowCompleteModal(true); }}
-                                    className="bg-emerald-500/10 p-2 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors"
-                                    title="خاتمه برنامه و آپلود فایل مسیر"
-                                >
-                                    <CheckCircle className="w-4 h-4" />
-                                </button>
+                    return (
+                        <div key={event.id} className="bg-slate-950/50 p-4 rounded-2xl border border-white/5 flex gap-4 items-center group hover:border-emerald-500/30 transition-all">
+                            {event.image_url ? (
+                                <img
+                                    src={event.image_url}
+                                    alt={event.title}
+                                    className="w-16 h-16 rounded-xl object-cover border border-white/10"
+                                />
+                            ) : (
+                                <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
+                                    <Calendar className="w-6 h-6 text-white/20" />
+                                </div>
                             )}
-                            <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ${event.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' :
-                                event.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' :
-                                    'bg-white/5 text-white/30'
-                                }`}>
-                                {event.status === 'scheduled' ? 'در انتظار برگزاری' : event.status === 'completed' ? 'پایان‌یافته' : event.status}
-                            </span>
+
+                            <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-lg mb-1 truncate">{event.title}</h3>
+                                <p className="text-white/40 text-sm flex flex-wrap items-center gap-3">
+                                    <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {new Date(event.date).toLocaleDateString("fa-IR")}</span>
+                                    <span>📍 {event.location}</span>
+                                    <span>👥 {event.capacity} نفر</span>
+                                </p>
+                                {/* Organizer Info */}
+                                {organizer && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        {organizer.avatar_url ? (
+                                            <img src={organizer.avatar_url} alt={organizer.full_name} className="w-5 h-5 rounded-full object-cover" />
+                                        ) : (
+                                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center"><Users className="w-3 h-3 text-white/40" /></div>
+                                        )}
+                                        <span className="text-xs text-white/50">سرگروه: {organizer.full_name}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Actions / Status */}
+                            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center shrink-0 w-full sm:w-auto mt-4 sm:mt-0 pt-4 sm:pt-0 border-t border-white/5 sm:border-t-0 gap-3">
+                                {canEdit && (
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleEdit(event)}
+                                            className="bg-white/5 p-2 rounded-lg hover:bg-white/10 text-white/50 hover:text-white transition-colors flex items-center gap-2"
+                                            title="ویرایش"
+                                        >
+                                            <Edit className="w-4 h-4" />
+                                            <span className="text-xs font-bold sm:hidden">ویرایش</span>
+                                        </button>
+                                        {event.status === 'scheduled' && (
+                                            <button
+                                                onClick={() => { setSelectedEventToComplete(event); setShowCompleteModal(true); }}
+                                                className="bg-emerald-500/10 p-2 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors flex items-center gap-2"
+                                                title="خاتمه برنامه و آپلود فایل مسیر"
+                                            >
+                                                <CheckCircle className="w-4 h-4" />
+                                                <span className="text-xs font-bold sm:hidden">خاتمه</span>
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ml-auto sm:ml-0 ${event.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' :
+                                    event.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' :
+                                        'bg-white/5 text-white/30'
+                                    }`}>
+                                    {event.status === 'scheduled' ? 'در انتظار برگزاری' : event.status === 'completed' ? 'پایان‌یافته' : event.status}
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
+
                 {events.length === 0 && !isLoadingEvents && (
                     <div className="text-center py-10 text-white/30">هنوز برنامه‌ای تعریف نشده است.</div>
                 )}
             </div>
 
             {/* Complete Event GPX Modal */}
-            {showCompleteModal && selectedEventToComplete && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                    <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
-                        <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
-                            <CheckCircle className="text-emerald-400 w-5 h-5" />
-                            ثبت گزارش صعود
-                        </h3>
-                        <p className="text-white/50 text-sm mb-6">
-                            برای خاتمه برنامه «{selectedEventToComplete.title}»، لطفاً فایل مسیر (GPX) را آپلود کنید تا مسافت، ارتفاع و کالری به صورت خودکار محاسبه شود.
-                        </p>
+            {
+                showCompleteModal && selectedEventToComplete && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                        <div className="bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
 
-                        <form onSubmit={handleCompleteEvent} className="space-y-4">
-                            <div className="border border-dashed border-white/20 rounded-2xl p-6 text-center hover:border-emerald-500/50 transition-colors bg-white/5 relative group cursor-pointer">
-                                <Upload className="w-8 h-8 text-white/30 mx-auto mb-3 group-hover:text-emerald-400 transition-colors" />
-                                <div className="text-sm font-bold text-white/70">انتخاب فایل مسیر (GPX)</div>
-                                <div className="text-xs text-white/40 mt-1">اختیاری - بدون فایل هم می‌توانید برنامه را تمام کنید</div>
-                                <input
-                                    type="file"
-                                    name="file"
-                                    accept=".gpx,application/gpx+xml"
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                />
-                            </div>
+                            <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                                <CheckCircle className="text-emerald-400 w-5 h-5" />
+                                ثبت گزارش صعود
+                            </h3>
+                            <p className="text-white/50 text-sm mb-6">
+                                برای خاتمه برنامه «{selectedEventToComplete.title}»، لطفاً فایل مسیر (GPX) را آپلود کنید تا مسافت، ارتفاع و کالری به صورت خودکار محاسبه شود.
+                            </p>
 
-                            <div className="flex gap-3 justify-end mt-6">
-                                <button
-                                    type="button"
-                                    onClick={() => { setShowCompleteModal(false); setSelectedEventToComplete(null); }}
-                                    className="px-5 py-2.5 rounded-xl hover:bg-white/5 text-white/60 font-bold transition-colors"
-                                >
-                                    انصراف
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmittingGPX}
-                                    className="px-6 py-2.5 bg-emerald-500 text-slate-950 rounded-xl font-black shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
-                                >
-                                    {isSubmittingGPX ? <Loader2 className="animate-spin w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
-                                    خاتمه و استخراج آمار
-                                </button>
-                            </div>
-                        </form>
+                            <form onSubmit={handleCompleteEvent} className="space-y-4">
+                                <div className="border border-dashed border-white/20 rounded-2xl p-6 text-center hover:border-emerald-500/50 transition-colors bg-white/5 relative group cursor-pointer">
+                                    <Upload className="w-8 h-8 text-white/30 mx-auto mb-3 group-hover:text-emerald-400 transition-colors" />
+                                    <div className="text-sm font-bold text-white/70">انتخاب فایل مسیر (GPX)</div>
+                                    <div className="text-xs text-white/40 mt-1">اختیاری - بدون فایل هم می‌توانید برنامه را تمام کنید</div>
+                                    <input
+                                        type="file"
+                                        name="file"
+                                        accept=".gpx,application/gpx+xml"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                </div>
+
+                                <div className="flex gap-3 justify-end mt-6">
+                                    <button
+                                        type="button"
+                                        onClick={() => { setShowCompleteModal(false); setSelectedEventToComplete(null); }}
+                                        className="px-5 py-2.5 rounded-xl hover:bg-white/5 text-white/60 font-bold transition-colors"
+                                    >
+                                        انصراف
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmittingGPX}
+                                        className="px-6 py-2.5 bg-emerald-500 text-slate-950 rounded-xl font-black shadow-lg shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-2"
+                                    >
+                                        {isSubmittingGPX ? <Loader2 className="animate-spin w-4 h-4" /> : <CheckCircle className="w-4 h-4" />}
+                                        خاتمه و استخراج آمار
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
         </div>
     );
 }

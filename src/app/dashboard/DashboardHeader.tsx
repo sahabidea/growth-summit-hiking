@@ -7,7 +7,8 @@ interface DashboardHeaderProps {
         full_name: string;
         phone_number: string | null;
         subscription_status: string;
-        role: string; // Added role to props
+        role: string;
+        avatar_url?: string | null;
     };
 }
 

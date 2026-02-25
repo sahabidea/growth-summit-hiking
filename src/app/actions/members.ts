@@ -10,7 +10,8 @@ export interface Profile {
     phone_number: string | null;
     subscription_status: "active" | "inactive" | "pending_verification";
     subscription_expiry: string | null;
-    role: "member" | "admin" | "guide";
+    role: "member" | "admin" | "guide" | "owner";
+    avatar_url?: string | null;
 }
 
 export interface Event {

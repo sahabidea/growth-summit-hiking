@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { EventsManager } from "@/app/admin/EventsManager";
+import EventsManager from "@/app/admin/EventsManager";
 import { ChatManager } from "@/app/admin/ChatManager";
+import UserManager from "@/app/admin/UserManager";
 import { GrowthChart } from "@/app/admin/components/GrowthChart";
 import { createClient } from "@/lib/supabase/client";
 
@@ -26,7 +27,7 @@ interface Application {
     created_at: string;
 }
 
-export default function AdminPanelView() {
+export default function AdminPanelView({ userRole, userId }: { userRole?: string, userId?: string }) {
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("all");
@@ -124,9 +125,10 @@ export default function AdminPanelView() {
             {/* Admin Header / Tabs */}
             <div className="bg-slate-950/50 p-4 border-b border-white/5 flex flex-wrap gap-2">
                 {[
-                    { id: "apps", label: "درخواست‌ها", icon: Users },
+                    { id: "apps", label: "درخواست‌ها", icon: CheckSquare },
                     { id: "events", label: "مدیریت برنامه‌ها", icon: Calendar },
                     { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
+                    { id: "users", label: "مدیریت کاربران", icon: Users },
                 ].map((item) => (
                     <button
                         key={item.id}
@@ -280,9 +282,11 @@ export default function AdminPanelView() {
                 )}
 
                 {/* --- 2. EVENTS VIEW --- */}
-                {activeView === "events" && <EventsManager />}
+                {activeView === "events" && <EventsManager userRole={userRole} userId={userId} />}
                 {/* --- 3. CHAT VIEW --- */}
                 {activeView === "chat" && <ChatManager />}
+                {/* --- 4. USERS VIEW --- */}
+                {activeView === "users" && <UserManager />}
 
             </div>
         </section>

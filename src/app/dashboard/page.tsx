@@ -192,8 +192,8 @@ export default async function DashboardPage() {
                         </div>
                     </section>
 
-                    {/* Admin Panel Section - Only for Admins */}
-                    {profile.role === 'admin' && (
+                    {/* Admin Panel Section - Only for Admins and Owners */}
+                    {(profile.role === 'admin' || profile.role === 'owner') && (
                         <div className="col-span-1 md:col-span-2 lg:col-span-3 mt-8 animate-in fade-in slide-in-from-bottom-12 duration-700">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="p-2 bg-amber-500/10 rounded-lg">
@@ -201,7 +201,7 @@ export default async function DashboardPage() {
                                 </div>
                                 <h2 className="text-2xl font-bold">پنل مدیریت سیستم</h2>
                             </div>
-                            <AdminPanelView />
+                            <AdminPanelView userRole={profile.role} userId={profile.id} />
                         </div>
                     )}
                 </div>
