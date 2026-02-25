@@ -31,12 +31,12 @@ export async function createEvent(data: {
         map_link: data.map_link,
         status: "scheduled",
         organizer_id: user?.id
-    });
+    }).select().single();
 
     if (error) return { success: false, error: error.message };
     revalidatePath("/admin");
     revalidatePath("/dashboard");
-    return { success: true };
+    return { success: true, data };
 }
 
 export async function updateEvent(eventId: string, data: {

@@ -82,6 +82,23 @@ export async function addEventComment(eventId: string, content: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "باید وارد سیستم شوید" };
 
+    // Check subscription and attendance
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("subscription_status, total_events_attended, role")
+        .eq("id", user.id)
+        .single();
+
+    // Admins and owners can always comment
+    if (profile?.role !== "admin" && profile?.role !== "owner") {
+        if (profile?.subscription_status !== "active") {
+            return { success: false, error: "برای نظردهی باید اشتراک فعال داشته باشید." };
+        }
+        if ((profile?.total_events_attended || 0) < 2) {
+            return { success: false, error: "برای نظردهی باید حداقل در ۲ برنامه شرکت کرده باشید." };
+        }
+    }
+
     const { error } = await supabase
         .from("event_comments")
         .insert({

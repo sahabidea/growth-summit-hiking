@@ -158,7 +158,7 @@ export default function LoginPage() {
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     placeholder="شماره موبایل (مثلا 0912...)"
-                                    className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-14 py-5 focus:outline-none focus:border-amber-500 focus:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all text-white placeholder:text-white/20 font-bold text-lg text-left ltr"
+                                    className="w-full bg-slate-950/50 border border-white/10 rounded-2xl px-14 py-5 focus:outline-none focus:border-amber-500 focus:shadow-[0_0_20px_rgba(245,158,11,0.1)] transition-all text-white placeholder:text-white/20 font-bold text-lg text-right"
                                     dir="ltr"
                                 />
                             </div>

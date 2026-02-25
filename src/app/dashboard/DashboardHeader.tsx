@@ -24,7 +24,7 @@ export function DashboardHeader({ profile }: DashboardHeaderProps) {
                             <Mountain className="h-6 w-6 text-slate-950" />
                         </div>
                         <div className="flex flex-col">
-                            <span className="font-display text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">کوهنوردان</span>
+                            <span className="font-display text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">اوجِ رشد</span>
                             <span className="text-[10px] text-white/40 font-mono tracking-widest uppercase">Community</span>
                         </div>
                     </Link>

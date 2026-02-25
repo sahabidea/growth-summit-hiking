@@ -138,7 +138,7 @@ export default function RegisterPage() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="شماره موبایل (0912...)"
-                            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-12 py-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-white placeholder:text-slate-600 font-sans text-left ltr"
+                            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-12 py-4 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-white placeholder:text-slate-600 font-sans text-right"
                             dir="ltr"
                             required
                         />

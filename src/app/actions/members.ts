@@ -12,6 +12,13 @@ export interface Profile {
     subscription_expiry: string | null;
     role: "member" | "admin" | "guide" | "owner";
     avatar_url?: string | null;
+    bio?: string | null;
+    experience?: string | null;
+    goals?: string | null;
+    personal_values?: string | null;
+    wallet_balance?: number;
+    total_events_attended?: number;
+    free_invites_remaining?: number;
 }
 
 export interface Event {

@@ -53,22 +53,26 @@ export default function Navbar({ user: initialUser }: NavbarProps) {
         <>
             <nav className="fixed w-full z-50 px-4 md:px-6 py-4 md:py-6">
                 <div className="max-w-7xl mx-auto backdrop-blur-md bg-white/5 rounded-[2rem] px-6 py-3 flex justify-between items-center border border-white/10 shadow-2xl">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 md:gap-3">
-                        <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg">
-                            <Mountain className="h-5 w-5 text-slate-950" />
+                    {/* Desktop Right Side: Logo + Links */}
+                    <div className="flex items-center gap-8">
+                        <Link href="/" className="flex items-center gap-2 md:gap-3">
+                            <div className="bg-emerald-500 p-1.5 rounded-lg shadow-lg">
+                                <Mountain className="h-5 w-5 text-slate-950" />
+                            </div>
+                            <span className="font-display text-2xl md:text-3xl text-white">اوجِ رشد</span>
+                        </Link>
+
+                        <div className="hidden md:flex items-center gap-6 text-sm font-bold text-white/70">
+                            {NAV_LINKS.map((link) => (
+                                <Link key={link.href} href={link.href} className="hover:text-white transition-colors">
+                                    {link.label}
+                                </Link>
+                            ))}
                         </div>
-                        <span className="font-display text-2xl md:text-3xl text-white">اوجِ رشد</span>
-                    </Link>
+                    </div>
 
-                    {/* Desktop Links */}
-                    <div className="hidden md:flex items-center gap-8 text-sm font-bold text-white/70">
-                        {NAV_LINKS.map((link) => (
-                            <Link key={link.href} href={link.href} className="hover:text-white transition-colors">
-                                {link.label}
-                            </Link>
-                        ))}
-
+                    {/* Desktop Left Side: Buttons */}
+                    <div className="hidden md:flex items-center">
                         {user ? (
                             <Link
                                 href="/dashboard"
@@ -122,7 +126,7 @@ export default function Navbar({ user: initialUser }: NavbarProps) {
                             animate={{ x: 0 }}
                             exit={{ x: "100%" }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed top-0 left-0 w-72 h-full bg-slate-900 z-50 p-8 flex flex-col border-r border-white/5 shadow-2xl"
+                            className="fixed top-0 right-0 w-72 h-full bg-slate-900 z-50 p-8 flex flex-col border-l border-white/5 shadow-2xl"
                         >
                             <div className="flex items-center gap-3 mb-12">
                                 <div className="bg-emerald-500 p-1.5 rounded-lg">

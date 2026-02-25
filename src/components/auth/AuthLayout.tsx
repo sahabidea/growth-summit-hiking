@@ -13,9 +13,9 @@ interface AuthLayoutProps {
 
 export default function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
     return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-[#020617] text-white overflow-hidden font-sans" dir="rtl">
-            {/* Right Side (Visuals in RTL) */}
-            <div className="w-full md:w-1/2 lg:w-[45%] relative flex flex-col justify-between p-8 md:p-12 overflow-hidden bg-slate-900 border-l border-white/5">
+        <div className="min-h-screen flex flex-col md:flex-row-reverse bg-[#020617] text-white overflow-hidden font-sans" dir="rtl">
+            {/* Left Side (Visuals in RTL using flex-row-reverse) */}
+            <div className="w-full md:w-1/2 lg:w-[45%] relative flex flex-col justify-between p-8 md:p-12 overflow-hidden bg-slate-900 border-r border-white/5">
                 {/* Background Gradient/Image Overlay */}
                 <div className="absolute inset-0 z-0">
                     <div

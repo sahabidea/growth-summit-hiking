@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { createEvent, fetchAllEvents, updateEvent, completeEventWithGPX } from "@/app/actions/admin-events";
-import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map } from "lucide-react";
+import { setEventTerms, getEventTerms } from "@/app/actions/event-terms";
+import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map, Shield, FileText, Heart } from "lucide-react";
 import MapPicker from "@/components/MapPicker";
 import { createClient } from "@/lib/supabase/client";
 
@@ -29,6 +30,11 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
     const [equipmentList, setEquipmentList] = useState("");
     const [specialNotes, setSpecialNotes] = useState("");
     const [mapLink, setMapLink] = useState("");
+
+    // Event Terms State
+    const [termsValues, setTermsValues] = useState("");
+    const [termsConditions, setTermsConditions] = useState("");
+    const [termsFitness, setTermsFitness] = useState("beginner");
 
     async function loadEvents() {
         setIsLoadingEvents(true);
@@ -64,6 +70,9 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
         setEquipmentList("");
         setSpecialNotes("");
         setMapLink("");
+        setTermsValues("");
+        setTermsConditions("");
+        setTermsFitness("beginner");
         setEditId(null);
         setShowForm(false);
     };
@@ -84,6 +93,14 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
         setEquipmentList(event.equipment_list || "");
         setSpecialNotes(event.special_notes || "");
         setMapLink(event.map_link || "");
+        // Load event terms
+        getEventTerms(event.id).then(res => {
+            if (res.success && res.data) {
+                setTermsValues(res.data.values_text || "");
+                setTermsConditions(res.data.conditions_text || "");
+                setTermsFitness(res.data.fitness_level || "beginner");
+            }
+        });
         setShowForm(true);
     };
 
@@ -113,6 +130,15 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
             }
 
             if (result.success) {
+                // Save event terms if any
+                const eventId = editId || (result as any).data?.id;
+                if (eventId && (termsValues || termsConditions)) {
+                    await setEventTerms(eventId, {
+                        values_text: termsValues || undefined,
+                        conditions_text: termsConditions || undefined,
+                        fitness_level: termsFitness || undefined,
+                    });
+                }
                 resetForm();
                 loadEvents();
             } else {
@@ -308,6 +334,57 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                         </div>
                     </div>
 
+                    <div className="col-span-1 md:col-span-2 border-t border-white/10 pt-4 mt-2">
+                        <h4 className="text-sm font-bold text-amber-400 mb-3 flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            شرایط و ارزش‌های برنامه (اختیاری)
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <label className="text-xs text-white/40 mr-2 flex items-center gap-1">
+                                    <Heart className="w-3 h-3 text-rose-400" /> ارزش‌ها و اصول برنامه
+                                </label>
+                                <textarea
+                                    placeholder="مثلاً: احترام به طبیعت، کار تیمی، سکوت در مسیر..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-[80px] focus:border-amber-500 transition-colors outline-none text-sm"
+                                    value={termsValues} onChange={e => setTermsValues(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="text-xs text-white/40 mr-2 flex items-center gap-1">
+                                    <FileText className="w-3 h-3 text-cyan-400" /> شرایط شرکت
+                                </label>
+                                <textarea
+                                    placeholder="مثلاً: آوردن رضایت‌نامه، سن حداقل ۱۸ سال..."
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 min-h-[80px] focus:border-amber-500 transition-colors outline-none text-sm"
+                                    value={termsConditions} onChange={e => setTermsConditions(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-3 space-y-1">
+                            <label className="text-xs text-white/40 mr-2">سطح آمادگی بدنی مورد نیاز</label>
+                            <div className="flex gap-2">
+                                {[
+                                    { value: "beginner", label: "مبتدی 🟢", color: "emerald" },
+                                    { value: "intermediate", label: "متوسط 🟡", color: "amber" },
+                                    { value: "advanced", label: "پیشرفته 🔴", color: "rose" },
+                                ].map(opt => (
+                                    <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => setTermsFitness(opt.value)}
+                                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${termsFitness === opt.value
+                                                ? `bg-${opt.color}-500 text-slate-950 border-${opt.color}-500`
+                                                : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10"
+                                            }`}
+                                    >
+                                        {opt.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     <div className="col-span-1 md:col-span-2 flex justify-end gap-3 mt-4 pt-4 border-t border-white/5">
                         <button
                             type="button"
@@ -329,11 +406,11 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
 
             <div className="space-y-4">
                 {events.map((event) => {
-                    // Check permissions
                     const isOwner = userRole === 'owner';
                     const isAdmin = userRole === 'admin';
                     const isOrganizer = userId === event.organizer_id;
-                    const canEdit = isOwner || isAdmin || isOrganizer;
+                    // Admins can ONLY edit their own events, owners can edit all
+                    const canEdit = isOwner || (isAdmin && isOrganizer);
                     const organizer = event.profiles; // From our join
 
                     return (

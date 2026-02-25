@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import EventsManager from "@/app/admin/EventsManager";
 import { ChatManager } from "@/app/admin/ChatManager";
 import UserManager from "@/app/admin/UserManager";
+import AdminRequestsManager from "@/app/admin/AdminRequestsManager";
 import { GrowthChart } from "@/app/admin/components/GrowthChart";
 import { createClient } from "@/lib/supabase/client";
 
@@ -129,6 +130,7 @@ export default function AdminPanelView({ userRole, userId }: { userRole?: string
                     { id: "events", label: "مدیریت برنامه‌ها", icon: Calendar },
                     { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
                     { id: "users", label: "مدیریت کاربران", icon: Users },
+                    ...(userRole === "owner" ? [{ id: "admin-requests", label: "درخواست‌های ادمین", icon: CheckSquare }] : []),
                 ].map((item) => (
                     <button
                         key={item.id}
@@ -287,6 +289,8 @@ export default function AdminPanelView({ userRole, userId }: { userRole?: string
                 {activeView === "chat" && <ChatManager />}
                 {/* --- 4. USERS VIEW --- */}
                 {activeView === "users" && <UserManager />}
+                {/* --- 5. ADMIN REQUESTS VIEW (Owner only) --- */}
+                {activeView === "admin-requests" && <AdminRequestsManager />}
 
             </div>
         </section>
