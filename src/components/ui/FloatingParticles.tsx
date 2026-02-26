@@ -12,42 +12,51 @@ interface FloatingParticlesProps {
 export const FloatingParticles = ({
     count = 20,
     color = "bg-amber-200",
-    glowColor = "rgba(251, 191, 36, 0.5)" // Amber glow
+    glowColor = "rgba(251, 191, 36, 0.5)"
 }: FloatingParticlesProps) => {
-    const [mounted, setMounted] = useState(false);
+    const [particles, setParticles] = useState<any[]>([]);
 
     useEffect(() => {
-        setMounted(true);
-    }, []);
+        const generated = [...Array(count)].map(() => ({
+            x: `${Math.random() * 100}%`,
+            y: `${Math.random() * 100}%`,
+            scaleMiddle: Math.random() * 0.5 + 0.5,
+            duration: Math.random() * 15 + 15,
+            delay: Math.random() * 5,
+            width: `${Math.random() * 6 + 2}px`,
+            height: `${Math.random() * 6 + 2}px`
+        }));
+        setParticles(generated);
+    }, [count]);
 
-    if (!mounted) return null;
+    if (!particles.length) return null;
 
     return (
         <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-            {[...Array(count)].map((_, i) => (
+            {particles.map((p, i) => (
                 <motion.div
                     key={i}
                     className={`absolute ${color} rounded-full mix-blend-screen opacity-20`}
                     initial={{
-                        x: `${Math.random() * 100}%`,
-                        y: `${Math.random() * 100}%`,
+                        x: p.x,
+                        y: p.y,
                         opacity: 0,
                         scale: 0
                     }}
                     animate={{
-                        y: [null, -100], // Drift upwards
+                        y: [null, -100],
                         opacity: [0, 0.4, 0],
-                        scale: [0, Math.random() * 0.5 + 0.5, 0] // Varied scale
+                        scale: [0, p.scaleMiddle, 0]
                     }}
                     transition={{
-                        duration: Math.random() * 15 + 15, // Slow, floaty
+                        duration: p.duration,
                         repeat: Infinity,
-                        delay: Math.random() * 5,
+                        delay: p.delay,
                         ease: "linear",
                     }}
                     style={{
-                        width: `${Math.random() * 6 + 2}px`,
-                        height: `${Math.random() * 6 + 2}px`,
+                        width: p.width,
+                        height: p.height,
                         boxShadow: `0 0 10px ${glowColor}`
                     }}
                 />

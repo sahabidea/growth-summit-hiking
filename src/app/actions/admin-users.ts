@@ -55,6 +55,30 @@ export async function updateUserRole(userId: string, newRole: string) {
     }
 }
 
+export async function updateAdminPermissions(userId: string, canManageUsers: boolean, canUseLivechat: boolean) {
+    try {
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Unauthorized");
+
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        if (profile?.role !== 'owner') throw new Error("Only owner can change admin permissions.");
+
+        const { error } = await supabase.rpc('update_admin_permissions', {
+            target_user_id: userId,
+            p_can_manage_users: canManageUsers,
+            p_can_use_livechat: canUseLivechat
+        });
+
+        if (error) throw error;
+
+        revalidatePath("/admin");
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
 export async function updateGuideProfile(data: { bio: string, specialties: string[], instagram_url: string }) {
     try {
         const supabase = await createClient();

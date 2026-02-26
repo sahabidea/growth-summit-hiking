@@ -6,6 +6,11 @@ import { setEventTerms, getEventTerms } from "@/app/actions/event-terms";
 import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map, Shield, FileText, Heart } from "lucide-react";
 import MapPicker from "@/components/MapPicker";
 import { createClient } from "@/lib/supabase/client";
+import DatePicker from "react-multi-date-picker";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import TimePicker from "react-multi-date-picker/plugins/time_picker";
+import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 
 export default function EventsManager({ userRole = 'member', userId = '' }: { userRole?: string, userId?: string }) {
     const [events, setEvents] = useState<any[]>([]);
@@ -210,12 +215,20 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                     </div>
 
                     <div className="space-y-1">
-                        <label className="text-xs text-white/40 mr-2">تاریخ و ساعت</label>
-                        <input
-                            type="datetime-local"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 transition-colors outline-none"
-                            value={date} onChange={e => setDate(e.target.value)}
-                            required
+                        <label className="text-xs text-white/40 mr-2">تاریخ و ساعت (شمسی)</label>
+                        <DatePicker
+                            value={date ? new Date(date) : null}
+                            onChange={(dateObj: any) => setDate(dateObj?.isValid ? dateObj.toDate().toISOString() : "")}
+                            format="YYYY/MM/DD HH:mm"
+                            calendar={persian}
+                            locale={persian_fa}
+                            plugins={[
+                                <TimePicker position="bottom" key="time" hideSeconds />
+                            ]}
+                            className="bg-dark"
+                            containerClassName="w-full"
+                            inputClass="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-emerald-500 transition-colors outline-none text-right dir-rtl placeholder-white/30"
+                            placeholder="انتخاب تاریخ و ساعت برنامه"
                         />
                     </div>
 
@@ -374,8 +387,8 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                                         type="button"
                                         onClick={() => setTermsFitness(opt.value)}
                                         className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${termsFitness === opt.value
-                                                ? `bg-${opt.color}-500 text-slate-950 border-${opt.color}-500`
-                                                : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10"
+                                            ? `bg-${opt.color}-500 text-slate-950 border-${opt.color}-500`
+                                            : "bg-white/5 text-white/60 border-white/5 hover:bg-white/10"
                                             }`}
                                     >
                                         {opt.label}

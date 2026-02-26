@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { fetchAllUsers, updateUserRole } from "@/app/actions/admin-users";
+import { fetchAllUsers, updateUserRole, updateAdminPermissions } from "@/app/actions/admin-users";
 import { Loader2, Users, CheckCircle2, ShieldAlert } from "lucide-react";
 
 export default function UserManager() {
@@ -10,10 +10,6 @@ export default function UserManager() {
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
     const [currentUserRole, setCurrentUserRole] = useState<string>('member');
-
-    useEffect(() => {
-        loadUsers();
-    }, []);
 
     async function loadUsers() {
         setLoading(true);
@@ -32,13 +28,34 @@ export default function UserManager() {
         setLoading(false);
     }
 
+    useEffect(() => {
+        loadUsers();
+    }, []);
+
     async function handleRoleChange(userId: string, newRole: string) {
         setUpdatingId(userId);
         const res = await updateUserRole(userId, newRole);
         if (res.success) {
-            setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
+            setUsers(users.map(u => u.id === userId ? { ...u, role: newRole, can_manage_users: newRole === 'admin' ? false : u.can_manage_users, can_use_livechat: newRole === 'admin' ? false : u.can_use_livechat } : u));
         } else {
             alert("خطا در تغییر نقش");
+        }
+        setUpdatingId(null);
+    }
+
+    async function handlePermissionChange(userId: string, permission: 'can_manage_users' | 'can_use_livechat', value: boolean) {
+        setUpdatingId(userId);
+        const targetUser = users.find(u => u.id === userId);
+        if (!targetUser) return;
+
+        const newManage = permission === 'can_manage_users' ? value : targetUser.can_manage_users;
+        const newChat = permission === 'can_use_livechat' ? value : targetUser.can_use_livechat;
+
+        const res = await updateAdminPermissions(userId, newManage, newChat);
+        if (res.success) {
+            setUsers(users.map(u => u.id === userId ? { ...u, [permission]: value } : u));
+        } else {
+            alert("خطا در تغییر دسترسی");
         }
         setUpdatingId(null);
     }
@@ -59,6 +76,7 @@ export default function UserManager() {
                             <th className="px-6 py-4 rounded-tr-xl">کاربر</th>
                             <th className="px-6 py-4">شماره تماس</th>
                             <th className="px-6 py-4">نقش فعلی</th>
+                            <th className="px-6 py-4">دسترسی‌های سرگروه</th>
                             <th className="px-6 py-4 rounded-tl-xl text-center">عملیات تغییر نقش</th>
                         </tr>
                     </thead>
@@ -93,6 +111,41 @@ export default function UserManager() {
                                             }`}>
                                             {user.role === 'owner' ? 'مالک' : user.role === 'admin' ? 'سرگروه' : 'عضو'}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {user.role === 'admin' && currentUserRole === 'owner' ? (
+                                            <div className="flex flex-col gap-2">
+                                                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white/70 hover:text-white transition-colors">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!!user.can_manage_users}
+                                                        disabled={updatingId === user.id}
+                                                        onChange={(e) => handlePermissionChange(user.id, 'can_manage_users', e.target.checked)}
+                                                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/50 focus:ring-offset-slate-950"
+                                                    />
+                                                    مدیریت کاربران
+                                                </label>
+                                                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-white/70 hover:text-white transition-colors">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={!!user.can_use_livechat}
+                                                        disabled={updatingId === user.id}
+                                                        onChange={(e) => handlePermissionChange(user.id, 'can_use_livechat', e.target.checked)}
+                                                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/50 focus:ring-offset-slate-950"
+                                                    />
+                                                    پاسخگویی لایو چت
+                                                </label>
+                                            </div>
+                                        ) : user.role === 'admin' ? (
+                                            <div className="flex flex-col gap-1 text-[10px] text-white/50">
+                                                {user.can_manage_users ? <span>✅ مدیریت کاربران</span> : <span>❌ مدیریت کاربران</span>}
+                                                {user.can_use_livechat ? <span>✅ لایو چت</span> : <span>❌ لایو چت</span>}
+                                            </div>
+                                        ) : user.role === 'owner' ? (
+                                            <span className="text-xs text-indigo-400 font-bold">دسترسی کامل (مالک)</span>
+                                        ) : (
+                                            <span className="text-xs text-white/30">دسترسی برنامه</span>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-center">
                                         <div className="flex items-center justify-center gap-2">

@@ -14,26 +14,22 @@ const images = [
     "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771390677/photo_2026-02-18_08-27-05_t2jnix.jpg",
     "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771390677/photo_2026-02-18_08-26-09_uhzh3u.jpg",
 ];
+const reversedImagesArr = [...images].reverse();
 
 export default function CommunityGallery() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(true);
     const [canScrollRight, setCanScrollRight] = useState(false);
     const [mounted, setMounted] = useState(false);
-    const [reversedImages, setReversedImages] = useState<string[]>([]);
 
     useEffect(() => {
-        setReversedImages([...images].reverse());
+        setMounted(true);
     }, []);
 
     // Initial Scroll to End (Right) to simulate RTL start
     useEffect(() => {
-        if (scrollRef.current && mounted) {
+        if (mounted && scrollRef.current) {
             scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
-            // Delay showing to avoid jump
-        }
-        if (!mounted) {
-            setMounted(true);
         }
     }, [mounted]);
 
@@ -103,7 +99,7 @@ export default function CommunityGallery() {
                     className="flex gap-4 md:gap-8 overflow-x-auto pb-12 pt-8 px-4 md:px-12 snap-x snap-mandatory hide-scrollbar scroll-smooth"
                     style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                 >
-                    {reversedImages.map((src, index) => (
+                    {reversedImagesArr.map((src, index) => (
                         <motion.div
                             key={index}
                             className="relative flex-shrink-0 snap-center"

@@ -10,23 +10,31 @@ import FAQ from "@/components/ui/FAQ";
 import { useEffect, useState } from "react";
 
 const FloatingParticles = () => {
-  const [mounted, setMounted] = useState(false);
+  const [particles, setParticles] = useState<any[]>([]);
 
   useEffect(() => {
-    setMounted(true);
+    const generated = [...Array(15)].map(() => ({
+      x: `${Math.random() * 100}vw`,
+      y: `${Math.random() * 100}vh`,
+      duration: Math.random() * 10 + 15,
+      delay: Math.random() * 5,
+      width: `${Math.random() * 4 + 2}px`,
+      height: `${Math.random() * 4 + 2}px`
+    }));
+    setParticles(generated);
   }, []);
 
-  if (!mounted) return null;
+  if (!particles.length) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-20">
-      {[...Array(15)].map((_, i) => (
+      {particles.map((p, i) => (
         <motion.div
           key={i}
           className="absolute bg-amber-200 rounded-full mix-blend-overlay"
           initial={{
-            x: `${Math.random() * 100}vw`,
-            y: `${Math.random() * 100}vh`,
+            x: p.x,
+            y: p.y,
             opacity: 0,
             scale: 0
           }}
@@ -36,14 +44,14 @@ const FloatingParticles = () => {
             scale: [0, 1.2, 0]
           }}
           transition={{
-            duration: Math.random() * 10 + 15,
+            duration: p.duration,
             repeat: Infinity,
-            delay: Math.random() * 5,
+            delay: p.delay,
             ease: "easeOut",
           }}
           style={{
-            width: `${Math.random() * 4 + 2}px`,
-            height: `${Math.random() * 4 + 2}px`,
+            width: p.width,
+            height: p.height,
             boxShadow: "0 0 10px rgba(251, 191, 36, 0.5)"
           }}
         />

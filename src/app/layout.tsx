@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
-import { Rubik, Lalezar } from "next/font/google";
+import { Vazirmatn, Lalezar } from "next/font/google";
 import "./globals.css";
 import { createClient } from "@/lib/supabase/server";
 import Navbar from "@/components/ui/Navbar";
 import LiveChatWidget from "@/components/ui/LiveChatWidget";
 import AutoLogoutProvider from "@/components/ui/AutoLogoutProvider";
 
-const rubik = Rubik({
+const vazirmatn = Vazirmatn({
   subsets: ["arabic", "latin"],
-  variable: "--font-rubik",
+  variable: "--font-vazirmatn",
   weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
@@ -25,7 +25,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://owj-roshd.ir";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "اوجِ رشد 79105202 | جامعه کوهنوردی اختصاصی",
+    default: "اوجِ رشد | جامعه کوهنوردی اختصاصی",
     template: "%s | اوجِ رشد",
   },
   description:
@@ -119,16 +119,13 @@ export default async function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#020617" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Rubik:wght@300..900&display=swap" rel="stylesheet" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body
-        className={`${rubik.variable} ${lalezar.variable} antialiased font-sans`}
+        className={`${vazirmatn.className} ${lalezar.variable} antialiased font-sans`}
       >
         <Navbar user={user} />
         <AutoLogoutProvider>

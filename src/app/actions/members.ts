@@ -19,6 +19,8 @@ export interface Profile {
     wallet_balance?: number;
     total_events_attended?: number;
     free_invites_remaining?: number;
+    can_manage_users?: boolean;
+    can_use_livechat?: boolean;
 }
 
 export interface Event {

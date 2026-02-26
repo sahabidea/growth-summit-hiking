@@ -201,7 +201,7 @@ export default async function DashboardPage() {
                                 </div>
                                 <h2 className="text-2xl font-bold">پنل مدیریت سیستم</h2>
                             </div>
-                            <AdminPanelView userRole={profile.role} userId={profile.id} />
+                            <AdminPanelView userRole={profile.role} userId={profile.id} canManageUsers={profile.can_manage_users} canUseLivechat={profile.can_use_livechat} />
                         </div>
                     )}
                 </div>

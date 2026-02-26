@@ -1,10 +1,9 @@
 "use client";
 
-import { LogOut, User, LayoutDashboard, Trophy, Target, ChevronDown, Trash2 } from "lucide-react";
+import { LogOut, User, LayoutDashboard, Trophy, Target, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { removeAvatar } from "@/app/actions/profile";
 
 interface UserDropdownProps {
     user: {
@@ -82,18 +81,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
                             <span className="text-sm font-medium">چالش‌های هفتگی</span>
                         </div>
 
-                        {user.avatar_url && (
-                            <button
-                                onClick={async () => {
-                                    await removeAvatar();
-                                    setIsOpen(false);
-                                }}
-                                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-amber-500/10 text-amber-400/80 hover:text-amber-400 transition-colors group mb-2"
-                            >
-                                <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                <span className="text-sm font-medium">حذف عکس پروفایل</span>
-                            </button>
-                        )}
+
 
                         <button
                             onClick={async () => {

@@ -30,6 +30,8 @@ async function getGuides() {
             guide.avatar_url = "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771911000/photo_2026-02-24_08-39-33_oaiffm.jpg";
         } else if (guide.full_name?.includes('حسین') || guide.full_name?.includes('حکم')) {
             guide.avatar_url = "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771390677/photo_2026-02-18_08-27-05_t2jnix.jpg";
+        } else if (guide.full_name?.includes('احسان') || guide.full_name?.includes('احسانپور')) {
+            guide.avatar_url = "https://res.cloudinary.com/dszhmx8ny/image/upload/v1772013176/photo_2026-02-25_13-22-49_xo2tl2.jpg";
         }
         return guide;
     });

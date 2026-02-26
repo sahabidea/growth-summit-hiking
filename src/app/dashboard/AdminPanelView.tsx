@@ -28,7 +28,7 @@ interface Application {
     created_at: string;
 }
 
-export default function AdminPanelView({ userRole, userId }: { userRole?: string, userId?: string }) {
+export default function AdminPanelView({ userRole, userId, canManageUsers, canUseLivechat }: { userRole?: string, userId?: string, canManageUsers?: boolean, canUseLivechat?: boolean }) {
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("all");
@@ -41,16 +41,16 @@ export default function AdminPanelView({ userRole, userId }: { userRole?: string
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
-    useEffect(() => {
-        loadApplications();
-    }, []);
-
     const loadApplications = async () => {
         setLoading(true);
         const result = await fetchAllApplications();
         if (result.success) setApplications(result.data);
         setLoading(false);
     }
+
+    useEffect(() => {
+        loadApplications();
+    }, []);
 
     // Realtime Subscription
     useEffect(() => {
@@ -128,8 +128,8 @@ export default function AdminPanelView({ userRole, userId }: { userRole?: string
                 {[
                     { id: "apps", label: "درخواست‌ها", icon: CheckSquare },
                     { id: "events", label: "مدیریت برنامه‌ها", icon: Calendar },
-                    { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
-                    { id: "users", label: "مدیریت کاربران", icon: Users },
+                    ...((userRole === "owner" || canUseLivechat) ? [{ id: "chat", label: "گفتگو آنلاین", icon: MessageCircle }] : []),
+                    ...((userRole === "owner" || canManageUsers) ? [{ id: "users", label: "مدیریت کاربران", icon: Users }] : []),
                     ...(userRole === "owner" ? [{ id: "admin-requests", label: "درخواست‌های ادمین", icon: CheckSquare }] : []),
                 ].map((item) => (
                     <button
@@ -286,9 +286,9 @@ export default function AdminPanelView({ userRole, userId }: { userRole?: string
                 {/* --- 2. EVENTS VIEW --- */}
                 {activeView === "events" && <EventsManager userRole={userRole} userId={userId} />}
                 {/* --- 3. CHAT VIEW --- */}
-                {activeView === "chat" && <ChatManager />}
+                {activeView === "chat" && (userRole === "owner" || canUseLivechat) && <ChatManager />}
                 {/* --- 4. USERS VIEW --- */}
-                {activeView === "users" && <UserManager />}
+                {activeView === "users" && (userRole === "owner" || canManageUsers) && <UserManager />}
                 {/* --- 5. ADMIN REQUESTS VIEW (Owner only) --- */}
                 {activeView === "admin-requests" && <AdminRequestsManager />}
 

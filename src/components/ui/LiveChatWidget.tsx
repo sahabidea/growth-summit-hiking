@@ -24,22 +24,6 @@ export default function LiveChatWidget() {
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Initial load from local storage if available
-    useEffect(() => {
-        const storedSession = localStorage.getItem("or_chat_session");
-        if (storedSession) {
-            setSessionId(storedSession);
-            setHasStarted(true);
-            loadMessages(storedSession);
-            subscribeToMessages(storedSession);
-        }
-    }, []);
-
-    // Scroll to bottom
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isOpen]);
-
     const loadMessages = async (sid: string) => {
         const res = await getSessionMessages(sid);
         if (res.success) {
@@ -68,6 +52,23 @@ export default function LiveChatWidget() {
             supabase.removeChannel(channel);
         };
     };
+
+    // Initial load from local storage if available
+    useEffect(() => {
+        const storedSession = localStorage.getItem("or_chat_session");
+        if (storedSession) {
+            setSessionId(storedSession);
+            setHasStarted(true);
+            loadMessages(storedSession);
+            subscribeToMessages(storedSession);
+        }
+    }, []);
+
+    // Scroll to bottom
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, isOpen]);
+
 
     const handleStartChat = async (e: React.FormEvent) => {
         e.preventDefault();

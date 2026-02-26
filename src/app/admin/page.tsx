@@ -36,16 +36,16 @@ export default function AdminDashboard() {
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const router = useRouter();
 
-    useEffect(() => {
-        loadApplications();
-    }, []);
-
     async function loadApplications() {
         setLoading(true);
         const result = await fetchAllApplications();
         if (result.success) setApplications(result.data);
         setLoading(false);
     }
+
+    useEffect(() => {
+        loadApplications();
+    }, []);
 
     async function handleStatusUpdate(id: string, status: string) {
         const result = await updateApplicationStatus(id, status);

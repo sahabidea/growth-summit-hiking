@@ -24,7 +24,7 @@
   --color-mist-100: #f1f5f9;
   --color-mist-50: #f8fafc;
 
-  --font-sans: var(--font-rubik), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-lalezar), sans-serif;
 
   --radius-xl: 1rem;
@@ -67,7 +67,7 @@
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02", "cv01";
     line-height: 1.8;
-    font-family: var(--font-rubik), 'Rubik', sans-serif;
+    font-family: var(--font-vazirmatn), 'Vazirmatn', sans-serif;
   }
 
   h1,
