@@ -4,6 +4,12 @@ import dynamic from "next/dynamic";
 
 const DynamicLocationPicker = dynamic(() => import("./LocationPicker"), { ssr: false });
 
-export default function MapPicker(props: Record<string, unknown>) {
+interface MapPickerProps {
+    initialLat?: number;
+    initialLng?: number;
+    onLocationSelect: (mapLink: string) => void;
+}
+
+export default function MapPicker(props: MapPickerProps) {
     return <DynamicLocationPicker {...props} />;
 }

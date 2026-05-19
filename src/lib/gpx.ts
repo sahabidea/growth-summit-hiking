@@ -74,9 +74,11 @@ export function parseGPX(gpxString: string): GPXStats {
     let distance = 0;
     let elevationGain = 0;
 
-    const startTime = points[0].time ? new Date(points[0].time).getTime() : 0;
-    const endTime = points[points.length - 1].time ? new Date(points[points.length - 1].time).getTime() : 0;
-
+    const startTimeStr = points[0].time;
+    const startTime = startTimeStr ? new Date(startTimeStr).getTime() : 0;
+    
+    const endTimeStr = points[points.length - 1].time;
+    const endTime = endTimeStr ? new Date(endTimeStr).getTime() : 0;
     for (let i = 1; i < points.length; i++) {
         const p1 = points[i - 1];
         const p2 = points[i];
