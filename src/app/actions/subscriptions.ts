@@ -173,21 +173,21 @@ export async function purchaseSubscription(
         }).eq("id", user.id);
 
     } else {
-        // Card transfer — pending until owner confirms
+        // Card transfer — pending until owner confirms payment
         const { error } = await supabase.from("subscriptions").insert({
             user_id: user.id,
             plan,
             price: selectedPlan.price,
             starts_at: startsAt.toISOString(),
             ends_at: endsAt.toISOString(),
-            status: "active", // Will be active once payment confirmed
+            status: "pending", // ⚠️ Must remain 'pending' until owner confirms
             payment_method: "card_transfer",
             card_transfer_tracking_code: trackingCode,
         });
 
         if (error) return { success: false, error: error.message };
 
-        // Set to pending verification
+        // Set profile to pending verification (NOT active)
         await supabase.from("profiles").update({
             subscription_status: "pending_verification",
         }).eq("id", user.id);
@@ -210,7 +210,15 @@ export async function confirmSubscriptionPayment(subscriptionId: string) {
     const { data: sub } = await supabase.from("subscriptions").select("*").eq("id", subscriptionId).single();
     if (!sub) return { success: false, error: "اشتراک یافت نشد." };
 
-    // Activate subscription
+    // 1. Activate the subscription record itself
+    const { error: subError } = await supabase
+        .from("subscriptions")
+        .update({ status: "active" })
+        .eq("id", subscriptionId);
+
+    if (subError) return { success: false, error: subError.message };
+
+    // 2. Activate the user's profile subscription status
     await supabase.from("profiles").update({
         subscription_status: "active",
         subscription_expiry: sub.ends_at,

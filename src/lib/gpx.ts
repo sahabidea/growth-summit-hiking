@@ -7,6 +7,21 @@ export interface GPXStats {
     calories_burned: number;
 }
 
+interface GPXPoint {
+    '@_lat': string;
+    '@_lon': string;
+    ele?: string | number;
+    time?: string;
+}
+
+interface GPXSegment {
+    trkpt?: GPXPoint | GPXPoint[];
+}
+
+interface GPXTrack {
+    trkseg?: GPXSegment | GPXSegment[];
+}
+
 function haversineDist(lat1: number, lon1: number, lat2: number, lon2: number) {
     const R = 6371; // Earth Radius in km
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -35,16 +50,17 @@ export function parseGPX(gpxString: string): GPXStats {
         throw new Error("No GPX data found inside the file");
     }
 
-    let points: any[] = [];
+    let points: GPXPoint[] = [];
 
     const trk = jsonObj.gpx.trk;
     if (!trk) return { distance_km: 0, elevation_gain: 0, duration_minutes: 0, calories_burned: 0 };
 
-    const tracks = Array.isArray(trk) ? trk : [trk];
+    const tracks = (Array.isArray(trk) ? trk : [trk]) as GPXTrack[];
 
-    tracks.forEach((track: any) => {
+    tracks.forEach((track: GPXTrack) => {
+        if (!track.trkseg) return;
         const segs = Array.isArray(track.trkseg) ? track.trkseg : [track.trkseg];
-        segs.forEach((seg: any) => {
+        segs.forEach((seg: GPXSegment) => {
             if (!seg || !seg.trkpt) return;
             const pts = Array.isArray(seg.trkpt) ? seg.trkpt : [seg.trkpt];
             points = points.concat(pts);
@@ -58,8 +74,8 @@ export function parseGPX(gpxString: string): GPXStats {
     let distance = 0;
     let elevationGain = 0;
 
-    let startTime = new Date(points[0].time).getTime();
-    let endTime = new Date(points[points.length - 1].time).getTime();
+    const startTime = points[0].time ? new Date(points[0].time).getTime() : 0;
+    const endTime = points[points.length - 1].time ? new Date(points[points.length - 1].time).getTime() : 0;
 
     for (let i = 1; i < points.length; i++) {
         const p1 = points[i - 1];
@@ -67,11 +83,11 @@ export function parseGPX(gpxString: string): GPXStats {
 
         const lat1 = parseFloat(p1['@_lat']);
         const lon1 = parseFloat(p1['@_lon']);
-        const ele1 = parseFloat(p1.ele || 0);
+        const ele1 = parseFloat(p1.ele?.toString() || "0");
 
         const lat2 = parseFloat(p2['@_lat']);
         const lon2 = parseFloat(p2['@_lon']);
-        const ele2 = parseFloat(p2.ele || 0);
+        const ele2 = parseFloat(p2.ele?.toString() || "0");
 
         distance += haversineDist(lat1, lon1, lat2, lon2);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchAllApplications, updateApplicationStatus, updateBulkApplicationStatus } from "@/app/actions/applications";
 import {
     Users, CheckCircle2, XCircle, Clock,
@@ -41,16 +41,17 @@ export default function AdminPanelView({ userRole, userId, canManageUsers, canUs
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [bulkActionLoading, setBulkActionLoading] = useState(false);
 
-    const loadApplications = async () => {
-        setLoading(true);
+    const loadApplications = useCallback(async () => {
         const result = await fetchAllApplications();
-        if (result.success) setApplications(result.data);
-        setLoading(false);
-    }
+        if (result.success) {
+            setTimeout(() => setApplications(result.data), 0);
+        }
+        setTimeout(() => setLoading(false), 0);
+    }, []);
 
     useEffect(() => {
         loadApplications();
-    }, []);
+    }, [loadApplications]);
 
     // Realtime Subscription
     useEffect(() => {
@@ -70,7 +71,7 @@ export default function AdminPanelView({ userRole, userId, canManageUsers, canUs
         return () => {
             supabase.removeChannel(channel);
         };
-    }, []);
+    }, [loadApplications]);
 
     const handleStatusUpdate = async (id: string, status: string) => {
         const result = await updateApplicationStatus(id, status);

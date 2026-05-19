@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getProfile, getNextEvent } from "@/app/actions/members";
 import Link from 'next/link';
+import Image from "next/image";
 import { JoinButton } from "./JoinButton";
 import { DashboardHeader } from "./DashboardHeader";
 import { Mountain, LogOut, CheckCircle, XCircle, Crown, LayoutDashboard } from "lucide-react";
@@ -120,10 +121,12 @@ export default async function DashboardPage() {
                             {/* Left: Image */}
                             {nextEvent?.image_url && (
                                 <div className="w-full md:w-1/3 aspect-video md:aspect-square rounded-2xl overflow-hidden relative group shrink-0 border border-white/10">
-                                    <img
+                                    <Image
                                         src={nextEvent.image_url}
                                         alt={nextEvent.title}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                        fill
+                                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                        sizes="(max-width: 768px) 100vw, 33vw"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                                     <div className="absolute bottom-4 right-4 text-white font-bold text-lg drop-shadow-md">

@@ -1,36 +1,48 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { fetchAllUsers, updateUserRole, updateAdminPermissions } from "@/app/actions/admin-users";
 import { Loader2, Users, CheckCircle2, ShieldAlert } from "lucide-react";
+import Image from "next/image";
+
+interface UserProfile {
+    id: string;
+    role: string;
+    can_manage_users?: boolean;
+    can_use_livechat?: boolean;
+    name?: string;
+    email?: string;
+    avatar_url?: string | null;
+    full_name?: string | null;
+    phone_number?: string | null;
+}
 
 export default function UserManager() {
-    const [users, setUsers] = useState<any[]>([]);
+    const [users, setUsers] = useState<UserProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
 
     const [currentUserRole, setCurrentUserRole] = useState<string>('member');
 
-    async function loadUsers() {
-        setLoading(true);
+    const loadUsers = useCallback(async () => {
         const res = await fetchAllUsers();
         if (res.success && res.data) {
-            setCurrentUserRole(res.currentUserRole);
+            setTimeout(() => setCurrentUserRole(res.currentUserRole), 0);
 
             let fetchedUsers = res.data;
             if (res.currentUserRole !== 'owner') {
                 // If not owner (e.g., admin), filter out owners and admins
-                fetchedUsers = fetchedUsers.filter((u: any) => u.role !== 'owner' && u.role !== 'admin');
+                fetchedUsers = fetchedUsers.filter((u: UserProfile) => u.role !== 'owner' && u.role !== 'admin');
             }
 
-            setUsers(fetchedUsers);
+            setTimeout(() => setUsers(fetchedUsers), 0);
         }
-        setLoading(false);
-    }
+        setTimeout(() => setLoading(false), 0);
+    }, []);
 
     useEffect(() => {
         loadUsers();
-    }, []);
+    }, [loadUsers]);
 
     async function handleRoleChange(userId: string, newRole: string) {
         setUpdatingId(userId);
@@ -48,8 +60,8 @@ export default function UserManager() {
         const targetUser = users.find(u => u.id === userId);
         if (!targetUser) return;
 
-        const newManage = permission === 'can_manage_users' ? value : targetUser.can_manage_users;
-        const newChat = permission === 'can_use_livechat' ? value : targetUser.can_use_livechat;
+        const newManage = permission === 'can_manage_users' ? value : !!targetUser.can_manage_users;
+        const newChat = permission === 'can_use_livechat' ? value : !!targetUser.can_use_livechat;
 
         const res = await updateAdminPermissions(userId, newManage, newChat);
         if (res.success) {
@@ -94,7 +106,7 @@ export default function UserManager() {
                                 <tr key={user.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                     <td className="px-6 py-4 font-bold flex items-center gap-3">
                                         {user.avatar_url ? (
-                                            <img src={user.avatar_url} alt="avatar" className="w-10 h-10 rounded-full object-cover border border-white/10" />
+                                            <Image src={user.avatar_url} alt="avatar" width={40} height={40} className="rounded-full object-cover border border-white/10" />
                                         ) : (
                                             <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center shrink-0">
                                                 <Users className="w-5 h-5 text-white/40" />

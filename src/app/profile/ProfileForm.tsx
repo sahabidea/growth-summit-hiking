@@ -65,7 +65,8 @@ export default function ProfileForm({
         formData.append("fullName", fullName);
         formData.append("phoneNumber", phoneNumber);
         const res = await updateProfileInfo(formData);
-        setInfoMsg({ type: res.success ? "success" : "error", text: (res as any).message || (res as any).error });
+        const result = res as { success: boolean; message?: string; error?: string };
+        setInfoMsg({ type: result.success ? "success" : "error", text: result.message || result.error || "" });
         setLoadingInfo(false);
     };
 
@@ -74,7 +75,8 @@ export default function ProfileForm({
         setLoadingResume(true);
         setResumeMsg({ type: "", text: "" });
         const res = await updateResume({ bio, experience, goals, personal_values: personalValues });
-        setResumeMsg({ type: res.success ? "success" : "error", text: (res as any).message || (res as any).error });
+        const result = res as { success: boolean; message?: string; error?: string };
+        setResumeMsg({ type: result.success ? "success" : "error", text: result.message || result.error || "" });
         setLoadingResume(false);
     };
 
@@ -106,18 +108,18 @@ export default function ProfileForm({
             setShowAdminForm(false);
             // Refresh admin request status
             const reqRes = await getMyAdminRequest();
-            if (reqRes.success && reqRes.data) setAdminRequest(reqRes.data as any);
+            if (reqRes.success && reqRes.data) setAdminRequest(reqRes.data as unknown as AdminRequest);
         } else {
             setAdminReqMsg({ type: "error", text: res.error! });
         }
         setLoadingAdminReq(false);
     };
 
-    const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-        pending: { label: "در انتظار بررسی", color: "amber", icon: Clock },
-        approved: { label: "تایید شده ✅", color: "emerald", icon: CheckCircle2 },
-        rejected: { label: "رد شده", color: "rose", icon: XCircle },
-        payment_required: { label: "در انتظار پرداخت", color: "cyan", icon: CreditCard },
+    const statusConfig = {
+        pending: { label: "در انتظار بررسی", color: "amber" as const, icon: Clock },
+        approved: { label: "تایید شده ✅", color: "emerald" as const, icon: CheckCircle2 },
+        rejected: { label: "رد شده", color: "rose" as const, icon: XCircle },
+        payment_required: { label: "در انتظار پرداخت", color: "cyan" as const, icon: CreditCard },
     };
 
     return (
@@ -215,7 +217,7 @@ export default function ProfileForm({
                     {adminRequest ? (
                         <div className="space-y-4">
                             {(() => {
-                                const cfg = statusConfig[adminRequest.status] || statusConfig.pending;
+                                const cfg = statusConfig[adminRequest.status as keyof typeof statusConfig] || statusConfig.pending;
                                 const Icon = cfg.icon;
                                 return (
                                     <div className={`p-4 rounded-xl border flex items-center gap-3 bg-${cfg.color}-500/10 border-${cfg.color}-500/20`}>

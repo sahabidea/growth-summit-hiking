@@ -100,11 +100,14 @@ export async function fetchEventAttendees(eventId: string) {
     if (error) return { success: false, error: error.message };
 
     // Flatten data
-    const attendees = data.map((b: any) => ({
-        ...b.profiles,
-        status: b.status,
-        booked_at: b.created_at
-    }));
+    const attendees = data.map((b: unknown) => {
+        const booking = b as { profiles: { full_name: string; phone_number: string; subscription_status: string }; status: string; created_at: string };
+        return {
+            ...booking.profiles,
+            status: booking.status,
+            booked_at: booking.created_at
+        };
+    });
 
     return { success: true, data: attendees };
 }
@@ -164,7 +167,7 @@ export async function completeEventWithGPX(eventId: string, formData: FormData) 
         const { parseGPX } = await import("@/lib/gpx");
 
         const stats = parseGPX(textContent);
-        let trackFileUrl = uploadData ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/public/${uploadData.path}` : null;
+        const trackFileUrl = uploadData ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/public/${uploadData.path}` : null;
 
         // 4. Update the event with status 'completed' and new stats
         const { error: updateError } = await supabase
@@ -184,7 +187,7 @@ export async function completeEventWithGPX(eventId: string, formData: FormData) 
         revalidatePath("/dashboard");
         revalidatePath(`/hikes/${eventId}`);
         return { success: true, stats };
-    } catch (e: any) {
-        return { success: false, error: e.message || "Failed to process GPX file" };
+    } catch (e: unknown) {
+        return { success: false, error: (e as Error).message || "Failed to process GPX file" };
     }
 }

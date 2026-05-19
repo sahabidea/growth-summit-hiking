@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { MessageCircle, Send, User, Loader2, ArrowLeft, RefreshCw, Smartphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -36,6 +36,23 @@ export const ChatManager = () => {
     const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    const fetchSessions = useCallback(async () => {
+        const res = await getChatSessions();
+        if (res.success && res.sessions) {
+            setTimeout(() => setSessions(res.sessions), 0);
+        }
+        setTimeout(() => setLoadingSessions(false), 0);
+    }, []);
+
+    const fetchMessages = useCallback(async (sid: string) => {
+        setTimeout(() => setLoadingMessages(true), 0);
+        const res = await getSessionMessages(sid);
+        if (res.success && res.messages) {
+            setTimeout(() => setMessages(res.messages), 0);
+        }
+        setTimeout(() => setLoadingMessages(false), 0);
+    }, []);
+
     useEffect(() => {
         fetchSessions();
 
@@ -50,7 +67,7 @@ export const ChatManager = () => {
             .subscribe();
 
         return () => { supabase.removeChannel(sessionsChannel); };
-    }, []);
+    }, [fetchSessions, supabase]);
 
     useEffect(() => {
         if (selectedSessionId) {
@@ -70,29 +87,11 @@ export const ChatManager = () => {
 
             return () => { supabase.removeChannel(messagesChannel); };
         }
-    }, [selectedSessionId]);
+    }, [selectedSessionId, fetchMessages, supabase]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
-
-    const fetchSessions = async () => {
-        // Optimistically set loading only on first load ideally
-        const res = await getChatSessions();
-        if (res.success && res.sessions) {
-            setSessions(res.sessions);
-        }
-        setLoadingSessions(false);
-    };
-
-    const fetchMessages = async (sid: string) => {
-        setLoadingMessages(true);
-        const res = await getSessionMessages(sid);
-        if (res.success && res.messages) {
-            setMessages(res.messages);
-        }
-        setLoadingMessages(false);
-    };
 
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();

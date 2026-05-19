@@ -5,7 +5,7 @@ const SMS_TEMPLATE_ID = parseInt(process.env.SMS_TEMPLATE_ID || "100000"); // De
 interface SmsResponse {
     status: number;
     message: string;
-    data: any;
+    data: unknown;
 }
 
 /**

@@ -25,8 +25,7 @@ export default async function ProfilePage() {
     ]);
 
     const adminRequest = adminReqRes.success ? adminReqRes.data : null;
-    const walletBalance = walletRes.success ? (walletRes as any).balance : 0;
-    const subscription = subRes.success ? subRes.data : null;
+    const walletBalance = walletRes.success ? (walletRes as unknown as { balance: number }).balance : 0;
 
     const roleLabels: Record<string, { label: string; color: string }> = {
         member: { label: "عضو", color: "white" },
@@ -116,7 +115,7 @@ export default async function ProfilePage() {
 
                     {/* Form */}
                     <div className="md:col-span-2">
-                        <ProfileForm initialProfile={profile} adminRequest={adminRequest as any} />
+                        <ProfileForm initialProfile={profile} adminRequest={adminRequest as unknown as Parameters<typeof ProfileForm>[0]['adminRequest']} />
                     </div>
                 </div>
             </main>

@@ -20,8 +20,8 @@ export async function fetchAllUsers() {
 
         if (error) throw error;
         return { success: true, data, currentUserRole };
-    } catch (e: any) {
-        return { success: false, error: e.message };
+    } catch (e: unknown) {
+        return { success: false, error: (e as Error).message };
     }
 }
 
@@ -50,8 +50,8 @@ export async function updateUserRole(userId: string, newRole: string) {
         revalidatePath("/");
 
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message };
+    } catch (e: unknown) {
+        return { success: false, error: (e as Error).message };
     }
 }
 
@@ -74,8 +74,8 @@ export async function updateAdminPermissions(userId: string, canManageUsers: boo
 
         revalidatePath("/admin");
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message };
+    } catch (e: unknown) {
+        return { success: false, error: (e as Error).message };
     }
 }
 
@@ -100,7 +100,7 @@ export async function updateGuideProfile(data: { bio: string, specialties: strin
         revalidatePath(`/guides/${user.id}`);
 
         return { success: true };
-    } catch (e: any) {
-        return { success: false, error: e.message };
+    } catch (e: unknown) {
+        return { success: false, error: (e as Error).message };
     }
 }

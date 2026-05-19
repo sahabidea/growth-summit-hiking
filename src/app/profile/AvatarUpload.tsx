@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { uploadAvatar, removeAvatar } from "@/app/actions/profile";
 import { Camera, Loader2, Trash2, Upload, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 
 interface AvatarUploadProps {
     currentAvatarUrl: string | null | undefined;
@@ -38,11 +39,12 @@ export default function AvatarUpload({ currentAvatarUrl, userName }: AvatarUploa
         setLoading(true);
         setMsg({ type: "", text: "" });
         const res = await removeAvatar();
-        if (res.success) {
+        const result = res as { success: boolean; error?: string };
+        if (result.success) {
             setAvatarUrl("");
             setMsg({ type: "success", text: "عکس حذف شد." });
         } else {
-            setMsg({ type: "error", text: (res as any).error || "خطا" });
+            setMsg({ type: "error", text: result.error || "خطا" });
         }
         setLoading(false);
     };
@@ -71,9 +73,9 @@ export default function AvatarUpload({ currentAvatarUrl, userName }: AvatarUploa
                 onDrop={handleDrop}
             >
                 {/* Avatar Image */}
-                <div className="w-full h-full rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-4xl shadow-xl shadow-emerald-500/20 overflow-hidden border-2 border-white/10">
+                <div className="w-full h-full rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-4xl shadow-xl shadow-emerald-500/20 overflow-hidden border-2 border-white/10 relative">
                     {avatarUrl ? (
-                        <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+                        <Image src={avatarUrl} alt={userName} fill className="object-cover" sizes="112px" />
                     ) : (
                         userName ? userName.charAt(0).toUpperCase() : "U"
                     )}

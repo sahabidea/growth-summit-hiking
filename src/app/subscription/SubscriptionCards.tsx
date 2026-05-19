@@ -17,7 +17,7 @@ interface Plan {
 
 interface SubscriptionCardsProps {
     plans: Plan[];
-    currentSubscription: any;
+    currentSubscription: { ends_at: string } | null;
     walletBalance: number;
 }
 

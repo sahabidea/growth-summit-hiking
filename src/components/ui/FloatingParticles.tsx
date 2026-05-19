@@ -9,12 +9,22 @@ interface FloatingParticlesProps {
     glowColor?: string;
 }
 
+interface Particle {
+    x: string;
+    y: string;
+    scaleMiddle: number;
+    duration: number;
+    delay: number;
+    width: string;
+    height: string;
+}
+
 export const FloatingParticles = ({
     count = 20,
     color = "bg-amber-200",
     glowColor = "rgba(251, 191, 36, 0.5)"
 }: FloatingParticlesProps) => {
-    const [particles, setParticles] = useState<any[]>([]);
+    const [particles, setParticles] = useState<Particle[]>([]);
 
     useEffect(() => {
         const generated = [...Array(count)].map(() => ({
@@ -26,7 +36,8 @@ export const FloatingParticles = ({
             width: `${Math.random() * 6 + 2}px`,
             height: `${Math.random() * 6 + 2}px`
         }));
-        setParticles(generated);
+        const timer = setTimeout(() => setParticles(generated), 0);
+        return () => clearTimeout(timer);
     }, [count]);
 
     if (!particles.length) return null;

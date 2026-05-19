@@ -73,8 +73,9 @@ ${historyText}`;
                     });
                     aiResponse = response.text;
                     break;
-                } catch (retryErr: any) {
-                    if (retryErr?.status === 429 && attempt === 0) {
+                } catch (retryErr: unknown) {
+                    const err = retryErr as { status?: number };
+                    if (err?.status === 429 && attempt === 0) {
                         // Wait 30 seconds and retry once
                         await new Promise(resolve => setTimeout(resolve, 30000));
                     } else {
@@ -97,7 +98,7 @@ ${historyText}`;
                 await supabase.from("chat_sessions").update({ updated_at: new Date().toISOString() }).eq("id", sessionId);
             }
 
-        } catch (aiError: any) {
+        } catch (aiError: unknown) {
             console.error("AI Chat Error:", aiError);
             // Send a fallback message so the user isn't left hanging
             await supabase.from("chat_messages").insert({

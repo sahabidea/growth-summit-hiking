@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Users, Star, Award, ChevronRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 
@@ -78,9 +79,9 @@ export default async function GuidesGalleryPage() {
 
                                         <div className="flex flex-col items-center text-center mb-6 relative z-10">
                                             <div className="relative mb-6">
-                                                <div className="w-48 h-48 rounded-[2rem] overflow-hidden border-4 border-slate-950 shadow-2xl group-hover:border-emerald-500/50 transition-colors">
+                                                <div className="w-48 h-48 rounded-[2rem] overflow-hidden border-4 border-slate-950 shadow-2xl group-hover:border-emerald-500/50 transition-colors relative">
                                                     {guide.avatar_url ? (
-                                                        <img src={guide.avatar_url} alt={guide.full_name} className="w-full h-full object-cover object-[50%_15%]" />
+                                                        <Image src={guide.avatar_url} alt={guide.full_name} fill className="object-cover object-[50%_15%]" sizes="192px" />
                                                     ) : (
                                                         <div className="w-full h-full bg-slate-800 flex items-center justify-center">
                                                             <Users className="w-16 h-16 text-white/20" />
@@ -139,9 +140,9 @@ export default async function GuidesGalleryPage() {
                                         {/* Avatar & Role Tag */}
                                         <div className="flex items-start justify-between mb-6 z-10">
                                             <div className="relative">
-                                                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-emerald-500/50 transition-colors bg-slate-800">
+                                                <div className="w-20 h-20 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-emerald-500/50 transition-colors bg-slate-800 relative">
                                                     {guide.avatar_url ? (
-                                                        <img src={guide.avatar_url} alt={guide.full_name} className="w-full h-full object-cover object-[50%_15%]" />
+                                                        <Image src={guide.avatar_url} alt={guide.full_name} fill className="object-cover object-[50%_15%]" sizes="80px" />
                                                     ) : (
                                                         <div className="w-full h-full flex items-center justify-center">
                                                             <Users className="w-8 h-8 text-white/20" />
@@ -216,7 +217,7 @@ export default async function GuidesGalleryPage() {
                             "https://res.cloudinary.com/dszhmx8ny/image/upload/v1771390677/photo_2026-02-18_08-27-05_t2jnix.jpg"
                         ].map((src, i) => (
                             <div key={i} className="group relative overflow-hidden rounded-[2rem] aspect-[4/5] object-cover bg-white/5 border border-white/10 hover:border-emerald-500/50 transition-colors cursor-pointer shadow-xl">
-                                <img src={src} alt="خاطرات صعود" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1" />
+                                <Image src={src} alt="خاطرات صعود" fill className="object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1" sizes="(max-width: 768px) 50vw, 25vw" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
                                     <div className="w-12 h-12 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/50 backdrop-blur-md">
                                         <Star className="w-6 h-6 text-emerald-400" />

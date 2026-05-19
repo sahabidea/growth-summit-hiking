@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createEvent, fetchAllEvents, updateEvent, completeEventWithGPX } from "@/app/actions/admin-events";
 import { setEventTerms, getEventTerms } from "@/app/actions/event-terms";
 import { Loader2, Plus, Users, Calendar, CloudSun, Edit, Link as LinkIcon, Image as ImageIcon, CheckCircle, Upload, MapPin, Map, Shield, FileText, Heart } from "lucide-react";
+import Image from "next/image";
 import MapPicker from "@/components/MapPicker";
 import { createClient } from "@/lib/supabase/client";
 import DatePicker from "react-multi-date-picker";
@@ -12,15 +13,35 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 
+interface Event {
+    id: string;
+    title: string;
+    date: string;
+    location: string;
+    capacity: number;
+    description: string;
+    weather_note?: string;
+    image_url?: string;
+    equipment_list?: string;
+    special_notes?: string;
+    map_link?: string;
+    status?: string;
+    organizer_id?: string;
+    profiles?: {
+        full_name: string;
+        avatar_url: string | null;
+    };
+}
+
 export default function EventsManager({ userRole = 'member', userId = '' }: { userRole?: string, userId?: string }) {
-    const [events, setEvents] = useState<any[]>([]);
+    const [events, setEvents] = useState<Event[]>([]);
     const [isLoadingEvents, setIsLoadingEvents] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showForm, setShowForm] = useState(false);
 
     // Complete Event State
     const [showCompleteModal, setShowCompleteModal] = useState(false);
-    const [selectedEventToComplete, setSelectedEventToComplete] = useState<any>(null);
+    const [selectedEventToComplete, setSelectedEventToComplete] = useState<Event | null>(null);
     const [isSubmittingGPX, setIsSubmittingGPX] = useState(false);
 
     // Form State
@@ -82,7 +103,7 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
         setShowForm(false);
     };
 
-    const handleEdit = (event: any) => {
+    const handleEdit = (event: Event) => {
         setEditId(event.id);
         setTitle(event.title);
         // Format date for datetime-local input (YYYY-MM-DDTHH:mm)
@@ -136,7 +157,7 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
 
             if (result.success) {
                 // Save event terms if any
-                const eventId = editId || (result as any).data?.id;
+                const eventId = editId || (result as { data?: { id: string } }).data?.id;
                 if (eventId && (termsValues || termsConditions)) {
                     await setEventTerms(eventId, {
                         values_text: termsValues || undefined,
@@ -218,7 +239,10 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                         <label className="text-xs text-white/40 mr-2">تاریخ و ساعت (شمسی)</label>
                         <DatePicker
                             value={date ? new Date(date) : null}
-                            onChange={(dateObj: any) => setDate(dateObj?.isValid ? dateObj.toDate().toISOString() : "")}
+                            onChange={(dateObj: unknown) => {
+                                const obj = dateObj as { isValid: boolean; toDate: () => Date } | null;
+                                setDate(obj?.isValid ? obj.toDate().toISOString() : "");
+                            }}
                             format="YYYY/MM/DD HH:mm"
                             calendar={persian}
                             locale={persian_fa}
@@ -425,14 +449,18 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                     // Admins can ONLY edit their own events, owners can edit all
                     const canEdit = isOwner || (isAdmin && isOrganizer);
                     const organizer = event.profiles; // From our join
+                    // Check if event is overdue (scheduled but date has passed)
+                    const isOverdue = event.status === 'scheduled' && new Date(event.date) < new Date();
 
                     return (
                         <div key={event.id} className="bg-slate-950/50 p-4 rounded-2xl border border-white/5 flex gap-4 items-center group hover:border-emerald-500/30 transition-all">
                             {event.image_url ? (
-                                <img
+                                <Image
                                     src={event.image_url}
                                     alt={event.title}
-                                    className="w-16 h-16 rounded-xl object-cover border border-white/10"
+                                    width={64}
+                                    height={64}
+                                    className="rounded-xl object-cover border border-white/10"
                                 />
                             ) : (
                                 <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
@@ -451,7 +479,7 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                                 {organizer && (
                                     <div className="flex items-center gap-2 mt-2">
                                         {organizer.avatar_url ? (
-                                            <img src={organizer.avatar_url} alt={organizer.full_name} className="w-5 h-5 rounded-full object-cover" />
+                                            <Image src={organizer.avatar_url} alt={organizer.full_name} width={20} height={20} className="rounded-full object-cover" />
                                         ) : (
                                             <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center"><Users className="w-3 h-3 text-white/40" /></div>
                                         )}
@@ -472,7 +500,7 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                                             <Edit className="w-4 h-4" />
                                             <span className="text-xs font-bold sm:hidden">ویرایش</span>
                                         </button>
-                                        {event.status === 'scheduled' && (
+                                        {event.status === 'scheduled' && !isOverdue && (
                                             <button
                                                 onClick={() => { setSelectedEventToComplete(event); setShowCompleteModal(true); }}
                                                 className="bg-emerald-500/10 p-2 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors flex items-center gap-2"
@@ -484,11 +512,13 @@ export default function EventsManager({ userRole = 'member', userId = '' }: { us
                                         )}
                                     </div>
                                 )}
-                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ml-auto sm:ml-0 ${event.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' :
+                                <span className={`px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap ml-auto sm:ml-0 ${
+                                    isOverdue ? 'bg-red-500/10 text-red-400' :
+                                    event.status === 'scheduled' ? 'bg-indigo-500/10 text-indigo-400' :
                                     event.status === 'completed' ? 'bg-emerald-500/10 text-emerald-400' :
-                                        'bg-white/5 text-white/30'
+                                    'bg-white/5 text-white/30'
                                     }`}>
-                                    {event.status === 'scheduled' ? 'در انتظار برگزاری' : event.status === 'completed' ? 'پایان‌یافته' : event.status}
+                                    {isOverdue ? 'لغو' : event.status === 'scheduled' ? 'در انتظار برگزاری' : event.status === 'completed' ? 'پایان‌یافته' : event.status}
                                 </span>
                             </div>
                         </div>

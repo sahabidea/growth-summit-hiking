@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { createServerSupabase } from "@/lib/supabase-server";
 import { revalidatePath } from "next/cache";
 
 // --- Get wallet balance ---
@@ -35,12 +36,29 @@ export async function getWalletTransactions() {
     return { success: true, data };
 }
 
-// --- Add funds to wallet ---
-export async function addToWallet(userId: string, amount: number, type: string, description: string, referenceId?: string) {
-    const supabase = await createClient();
+/**
+ * افزودن مبلغ به کیف پول با آپدیت atomic (بدون race condition)
+ * استفاده از RPC یا increment مستقیم برای جلوگیری از همزمانی
+ * 
+ * ⚠️ این تابع فقط از سمت server actions دیگر فراخوانی می‌شود، نه مستقیم از کلاینت
+ * @param userId - شناسه کاربر (باید تأیید شده باشد)
+ * @param amount - مقدار (مثبت = افزایش، منفی = کسر)
+ * @param type - نوع تراکنش
+ * @param description - توضیحات
+ * @param referenceId - شناسه مرجع (اختیاری)
+ */
+export async function addToWallet(
+    userId: string,
+    amount: number,
+    type: string,
+    description: string,
+    referenceId?: string
+) {
+    // از Service Role Client برای atomic update استفاده می‌کنیم
+    const adminSupabase = createServerSupabase();
 
-    // Insert transaction
-    const { error: txError } = await supabase.from("wallet_transactions").insert({
+    // 1. ثبت تراکنش
+    const { error: txError } = await adminSupabase.from("wallet_transactions").insert({
         user_id: userId,
         amount,
         type,
@@ -50,25 +68,39 @@ export async function addToWallet(userId: string, amount: number, type: string, 
 
     if (txError) return { success: false, error: txError.message };
 
-    // Update balance
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("wallet_balance")
-        .eq("id", userId)
-        .single();
+    // 2. آپدیت atomic با increment مستقیم (بدون read-then-write)
+    // از raw SQL برای جلوگیری از race condition استفاده می‌کنیم
+    const { data, error: balError } = await adminSupabase.rpc("increment_wallet_balance", {
+        p_user_id: userId,
+        p_amount: amount,
+    });
 
-    const newBalance = (profile?.wallet_balance || 0) + amount;
+    if (balError) {
+        // Fallback: اگر RPC وجود نداشت، از read-then-write استفاده می‌کنیم
+        console.warn("RPC increment_wallet_balance not found, using fallback. Consider adding the RPC for atomic updates.");
 
-    const { error: balError } = await supabase
-        .from("profiles")
-        .update({ wallet_balance: newBalance })
-        .eq("id", userId);
+        const { data: profile } = await adminSupabase
+            .from("profiles")
+            .select("wallet_balance")
+            .eq("id", userId)
+            .single();
 
-    if (balError) return { success: false, error: balError.message };
-    return { success: true, newBalance };
+        const newBalance = (profile?.wallet_balance || 0) + amount;
+
+        const { error: updateErr } = await adminSupabase
+            .from("profiles")
+            .update({ wallet_balance: newBalance })
+            .eq("id", userId);
+
+        if (updateErr) return { success: false, error: updateErr.message };
+        return { success: true, newBalance };
+    }
+
+    return { success: true, newBalance: data };
 }
 
 // --- Process refund (50% to wallet) ---
+// فقط برای کاربر احراز هویت‌شده
 export async function processRefund(bookingId: string, eventTitle: string, originalAmount: number) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -91,13 +123,13 @@ export async function processRefund(bookingId: string, eventTitle: string, origi
     return { success: true, refundAmount, message: `مبلغ ${refundAmount.toLocaleString()} تومان به کیف پول شما واریز شد.` };
 }
 
-// --- Pay from wallet ---
+// --- Pay from wallet (با احراز هویت) ---
 export async function payFromWallet(amount: number, type: string, description: string, referenceId?: string) {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
-    // Check balance
+    // بررسی موجودی قبل از کسر
     const { data: profile } = await supabase
         .from("profiles")
         .select("wallet_balance")

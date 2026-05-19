@@ -88,3 +88,47 @@ ALTER TABLE public.events ADD COLUMN IF NOT EXISTS calories_burned integer;
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS equipment_list text;
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS special_notes text;
 ALTER TABLE public.events ADD COLUMN IF NOT EXISTS map_link text;
+
+-- ============================================================
+-- SECURITY & BUG FIXES (added 1404/02/29)
+-- ============================================================
+
+-- 7. Atomic Wallet Balance Update RPC (prevents race condition)
+CREATE OR REPLACE FUNCTION public.increment_wallet_balance(p_user_id uuid, p_amount numeric)
+RETURNS numeric
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_new_balance numeric;
+BEGIN
+  UPDATE public.profiles
+  SET wallet_balance = COALESCE(wallet_balance, 0) + p_amount
+  WHERE id = p_user_id
+  RETURNING wallet_balance INTO v_new_balance;
+
+  -- Prevent negative balance
+  IF v_new_balance < 0 THEN
+    RAISE EXCEPTION 'Insufficient wallet balance';
+  END IF;
+
+  RETURN v_new_balance;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.increment_wallet_balance(uuid, numeric) TO service_role;
+
+-- 8. Add booking_price column to events table (for refund calculation)
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS booking_price integer DEFAULT 0;
+
+-- 9. Fix card_transfer subscriptions that were incorrectly set to 'active'
+-- Only update ones where the profile subscription_status is still 'pending_verification'
+-- (meaning owner hasn't confirmed yet)
+UPDATE public.subscriptions
+SET status = 'pending'
+WHERE payment_method = 'card_transfer'
+  AND status = 'active'
+  AND user_id IN (
+    SELECT id FROM public.profiles
+    WHERE subscription_status = 'pending_verification'
+  );

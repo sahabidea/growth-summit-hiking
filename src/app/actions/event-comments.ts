@@ -6,61 +6,62 @@ import { revalidatePath } from "next/cache";
 export async function getEventDetails(eventId: string) {
     const supabase = await createClient();
 
-    const { data: event, error: eventError } = await supabase
-        .from("events")
-        .select("*")
-        .eq("id", eventId)
-        .single();
+    // Fetch independent data in parallel
+    const [eventRes, commentsRes, countRes, userRes] = await Promise.all([
+        supabase.from("events").select("*").eq("id", eventId).single(),
+        supabase
+            .from("event_comments")
+            .select(`
+                id,
+                content,
+                created_at,
+                user_id,
+                profiles (
+                    full_name
+                )
+            `)
+            .eq("event_id", eventId)
+            .order("created_at", { ascending: true }),
+        supabase
+            .from("bookings")
+            .select("*", { count: "exact", head: true })
+            .eq("event_id", eventId)
+            .eq("status", "confirmed"),
+        supabase.auth.getUser()
+    ]);
+
+    const { data: event, error: eventError } = eventRes;
+    const { data: comments, error: commentsError } = commentsRes;
+    const { count: attendeesCount } = countRes;
+    const { data: { user } } = userRes;
 
     if (eventError) return { success: false, error: eventError.message };
-
-    // Fetch comments
-    const { data: comments, error: commentsError } = await supabase
-        .from("event_comments")
-        .select(`
-            id,
-            content,
-            created_at,
-            user_id,
-            profiles (
-                full_name
-            )
-        `)
-        .eq("event_id", eventId)
-        .order("created_at", { ascending: true });
-
     if (commentsError) return { success: false, error: commentsError.message, data: event };
 
-    // Fetch attendee count (just the number)
-    const { count: attendeesCount } = await supabase
-        .from("bookings")
-        .select("*", { count: "exact", head: true })
-        .eq("event_id", event.id)
-        .eq("status", "confirmed");
-
-    // Check if the current user is booked and their info
     let userBookingStatus = null;
     let subscriptionStatus = null;
     let isAuthenticated = false;
 
-    const { data: { user } } = await supabase.auth.getUser();
-
     if (user) {
         isAuthenticated = true;
-        const { data: booking } = await supabase
-            .from("bookings")
-            .select("status")
-            .eq("event_id", event.id)
-            .eq("user_id", user.id)
-            .single();
-        if (booking) userBookingStatus = booking.status;
+        
+        // Fetch user specific data in parallel
+        const [bookingRes, profileRes] = await Promise.all([
+            supabase
+                .from("bookings")
+                .select("status")
+                .eq("event_id", event.id)
+                .eq("user_id", user.id)
+                .single(),
+            supabase
+                .from("profiles")
+                .select("subscription_status")
+                .eq("id", user.id)
+                .single()
+        ]);
 
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("subscription_status")
-            .eq("id", user.id)
-            .single();
-        if (profile) subscriptionStatus = profile.subscription_status;
+        if (bookingRes.data) userBookingStatus = bookingRes.data.status;
+        if (profileRes.data) subscriptionStatus = profileRes.data.subscription_status;
     }
 
     return {

@@ -1,13 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { MessageCircle, X, Send, User, Loader2, Minimize2, Smartphone } from "lucide-react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { MessageCircle, X, Send, User, Loader2, Minimize2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { createChatSession, getSessionMessages, sendMessage } from "@/app/actions/live-chat";
 
+interface ChatMessage {
+    id: string;
+    sender: 'user' | 'admin';
+    content: string;
+    created_at: string;
+}
+
 export default function LiveChatWidget() {
-    const supabase = createClient();
+    const supabase = useMemo(() => createClient(), []);
     const [isOpen, setIsOpen] = useState(false);
 
     // User data state
@@ -18,20 +25,20 @@ export default function LiveChatWidget() {
 
     // Chat ui state
     const [input, setInput] = useState("");
-    const [messages, setMessages] = useState<any[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isSending, setIsSending] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
 
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const loadMessages = async (sid: string) => {
+    const loadMessages = useCallback(async (sid: string) => {
         const res = await getSessionMessages(sid);
         if (res.success) {
             setMessages(res.messages || []);
         }
-    };
+    }, []);
 
-    const subscribeToMessages = (sid: string) => {
+    const subscribeToMessages = useCallback((sid: string) => {
         const channel = supabase
             .channel(`chat_room:${sid}`)
             .on(
@@ -43,7 +50,7 @@ export default function LiveChatWidget() {
                     filter: `session_id=eq.${sid}`,
                 },
                 (payload) => {
-                    setMessages((prev) => [...prev, payload.new]);
+                    setMessages((prev) => [...prev, payload.new as ChatMessage]);
                 }
             )
             .subscribe();
@@ -51,18 +58,20 @@ export default function LiveChatWidget() {
         return () => {
             supabase.removeChannel(channel);
         };
-    };
+    }, [supabase]);
 
     // Initial load from local storage if available
     useEffect(() => {
         const storedSession = localStorage.getItem("or_chat_session");
         if (storedSession) {
-            setSessionId(storedSession);
-            setHasStarted(true);
-            loadMessages(storedSession);
-            subscribeToMessages(storedSession);
+            setTimeout(() => {
+                setSessionId(storedSession);
+                setHasStarted(true);
+                loadMessages(storedSession);
+                subscribeToMessages(storedSession);
+            }, 0);
         }
-    }, []);
+    }, [loadMessages, subscribeToMessages]);
 
     // Scroll to bottom
     useEffect(() => {

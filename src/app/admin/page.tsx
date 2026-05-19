@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchAllApplications, updateApplicationStatus } from "@/app/actions/applications";
 import { adminLogout } from "@/app/actions/auth";
 import {
@@ -26,6 +26,56 @@ interface Application {
     created_at: string;
 }
 
+interface SidebarContentProps {
+    activeView: string;
+    setActiveView: (view: string) => void;
+    setSidebarOpen: (open: boolean) => void;
+    handleLogout: () => void;
+}
+
+const SidebarContent = ({ activeView, setActiveView, setSidebarOpen, handleLogout }: SidebarContentProps) => (
+    <>
+        <div className="flex items-center gap-3 mb-12">
+            <div className="bg-emerald-500 p-1.5 rounded-lg">
+                <Mountain className="h-6 w-6 text-slate-950" />
+            </div>
+            <span className="font-display text-2xl">پنل ادمین</span>
+        </div>
+
+        <nav className="space-y-4 flex-1">
+            {[
+                { id: "dash", label: "داشبورد", icon: LayoutDashboard },
+                { id: "apps", label: "درخواست‌ها", icon: Users },
+                { id: "events", label: "برنامه‌ها", icon: Calendar },
+                { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
+                { id: "settings", label: "تنظیمات", icon: Settings },
+            ].map((item) => (
+                <button
+                    key={item.id}
+                    onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
+                    className={cn(
+                        "w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold",
+                        activeView === item.id
+                            ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
+                            : "text-white/40 hover:text-white hover:bg-white/5"
+                    )}
+                >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                </button>
+            ))}
+        </nav>
+
+        <button
+            onClick={handleLogout}
+            className="flex items-center gap-4 px-6 py-4 text-rose-500 font-bold hover:bg-rose-500/5 rounded-2xl transition-all mt-auto"
+        >
+            <LogOut className="h-5 w-5" />
+            خروج
+        </button>
+    </>
+);
+
 export default function AdminDashboard() {
     const [applications, setApplications] = useState<Application[]>([]);
     const [loading, setLoading] = useState(true);
@@ -36,16 +86,17 @@ export default function AdminDashboard() {
     const [selectedApp, setSelectedApp] = useState<Application | null>(null);
     const router = useRouter();
 
-    async function loadApplications() {
-        setLoading(true);
+    const loadApplications = useCallback(async () => {
         const result = await fetchAllApplications();
-        if (result.success) setApplications(result.data);
-        setLoading(false);
-    }
+        if (result.success) {
+            setTimeout(() => setApplications(result.data), 0);
+        }
+        setTimeout(() => setLoading(false), 0);
+    }, []);
 
     useEffect(() => {
         loadApplications();
-    }, []);
+    }, [loadApplications]);
 
     async function handleStatusUpdate(id: string, status: string) {
         const result = await updateApplicationStatus(id, status);
@@ -74,54 +125,13 @@ export default function AdminDashboard() {
         approved: applications.filter(a => a.status === "approved").length,
     };
 
-    const SidebarContent = () => (
-        <>
-            <div className="flex items-center gap-3 mb-12">
-                <div className="bg-emerald-500 p-1.5 rounded-lg">
-                    <Mountain className="h-6 w-6 text-slate-950" />
-                </div>
-                <span className="font-display text-2xl">پنل ادمین</span>
-            </div>
 
-            <nav className="space-y-4 flex-1">
-                {[
-                    { id: "dash", label: "داشبورد", icon: LayoutDashboard },
-                    { id: "apps", label: "درخواست‌ها", icon: Users },
-                    { id: "events", label: "برنامه‌ها", icon: Calendar },
-                    { id: "chat", label: "گفتگو آنلاین", icon: MessageCircle },
-                    { id: "settings", label: "تنظیمات", icon: Settings },
-                ].map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => { setActiveView(item.id); setSidebarOpen(false); }}
-                        className={cn(
-                            "w-full flex items-center gap-4 px-6 py-4 rounded-2xl transition-all font-bold",
-                            activeView === item.id
-                                ? "bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20"
-                                : "text-white/40 hover:text-white hover:bg-white/5"
-                        )}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                    </button>
-                ))}
-            </nav>
-
-            <button
-                onClick={handleLogout}
-                className="flex items-center gap-4 px-6 py-4 text-rose-500 font-bold hover:bg-rose-500/5 rounded-2xl transition-all mt-auto"
-            >
-                <LogOut className="h-5 w-5" />
-                خروج
-            </button>
-        </>
-    );
 
     return (
         <div className="min-h-screen bg-slate-950 text-white font-sans flex" dir="rtl">
             {/* Desktop Sidebar */}
             <aside className="w-72 border-l border-white/5 bg-slate-900/50 backdrop-blur-xl hidden lg:flex flex-col p-8 fixed h-full z-20">
-                <SidebarContent />
+                <SidebarContent activeView={activeView} setActiveView={setActiveView} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
             </aside>
 
             {/* Mobile Sidebar */}
@@ -142,7 +152,7 @@ export default function AdminDashboard() {
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
                             className="fixed top-0 left-0 w-72 h-full bg-slate-900 z-40 p-8 flex flex-col border-r border-white/5 shadow-2xl lg:hidden"
                         >
-                            <SidebarContent />
+                            <SidebarContent activeView={activeView} setActiveView={setActiveView} setSidebarOpen={setSidebarOpen} handleLogout={handleLogout} />
                         </motion.aside>
                     </>
                 )}

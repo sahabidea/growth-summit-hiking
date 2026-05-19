@@ -9,8 +9,17 @@ import CommunityGallery from "@/components/ui/CommunityGallery";
 import FAQ from "@/components/ui/FAQ";
 import { useEffect, useState } from "react";
 
+interface Particle {
+    x: string;
+    y: string;
+    duration: number;
+    delay: number;
+    width: string;
+    height: string;
+}
+
 const FloatingParticles = () => {
-  const [particles, setParticles] = useState<any[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
     const generated = [...Array(15)].map(() => ({
@@ -21,7 +30,8 @@ const FloatingParticles = () => {
       width: `${Math.random() * 4 + 2}px`,
       height: `${Math.random() * 4 + 2}px`
     }));
-    setParticles(generated);
+    const timer = setTimeout(() => setParticles(generated), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   if (!particles.length) return null;

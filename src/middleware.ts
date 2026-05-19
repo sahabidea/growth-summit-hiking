@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
+import { createHash } from "crypto";
 
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "owj-admin-2026";
+const TOKEN_SECRET = process.env.ADMIN_TOKEN_SECRET || "owj-secret-salt-2026";
+
+/** اعتبارسنجی token ادمین در edge middleware */
+function verifyAdminToken(token: string): boolean {
+    const parts = token.split(".");
+    if (parts.length !== 2) return false;
+    const [random, hash] = parts;
+    const expected = createHash("sha256")
+        .update(`${ADMIN_PASSWORD}:${TOKEN_SECRET}:${random}`)
+        .digest("hex");
+    return hash === expected;
+}
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
@@ -14,7 +27,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
         const adminToken = request.cookies.get("admin_token")?.value;
 
-        if (adminToken !== ADMIN_PASSWORD) {
+        if (!adminToken || !verifyAdminToken(adminToken)) {
             const loginUrl = new URL("/admin/login", request.url);
             return NextResponse.redirect(loginUrl);
         }

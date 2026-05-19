@@ -91,7 +91,7 @@ export default function LoginPage() {
             </div>
 
             {mode === "password" ? (
-                <form action={handlePasswordLogin} className="space-y-6">
+                <form onSubmit={(e) => { e.preventDefault(); handlePasswordLogin(new FormData(e.currentTarget)); }} className="space-y-6">
                     <div className="space-y-5">
                         <div className="relative group">
                             <Mail className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/20 group-focus-within:text-amber-400 transition-colors" />
@@ -242,6 +242,14 @@ export default function LoginPage() {
                     ثبت نام کنید
                 </Link>
             </div>
+
+            {/* Loading Overlay */}
+            {loading && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/60 backdrop-blur-sm rounded-[2rem] border border-white/5 animate-in fade-in duration-300">
+                    <Loader2 className="w-12 h-12 text-amber-500 animate-spin mb-4" />
+                    <p className="text-white font-bold text-lg animate-pulse">در حال ورود به سیستم...</p>
+                </div>
+            )}
         </AuthLayout>
     );
 }

@@ -135,6 +135,26 @@ export async function removeAvatar() {
         return { success: false, error: "کاربر یافت نشد." };
     }
 
+    // دریافت URL فعلی برای استخراج مسیر فایل
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+
+    // حذف فایل از Storage (اگر URL وجود داشت)
+    if (profile?.avatar_url) {
+        // استخراج مسیر فایل از URL
+        // URL شکل: .../storage/v1/object/public/avatars/USER_ID/avatar.ext
+        const urlParts = profile.avatar_url.split("/avatars/");
+        if (urlParts.length > 1) {
+            const filePath = urlParts[1].split("?")[0]; // حذف query string احتمالی
+            await supabase.storage.from("avatars").remove([filePath]);
+            // خطای حذف Storage را نادیده می‌گیریم — اصلی‌ترین کار null کردن DB است
+        }
+    }
+
+    // null کردن avatar_url در دیتابیس
     const { error: profileError } = await supabase
         .from("profiles")
         .update({

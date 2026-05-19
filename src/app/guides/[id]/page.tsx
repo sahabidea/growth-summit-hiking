@@ -1,11 +1,32 @@
 import { createClient } from "@/lib/supabase/server";
 import { Users, Star, Award, Instagram, Calendar, MapPin, Users as UsersIcon, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/ui/Footer";
 import { notFound } from "next/navigation";
 
 export const revalidate = 60; // Cache for 60 seconds
+
+interface Guide {
+    id: string;
+    full_name: string;
+    avatar_url?: string;
+    role: string;
+    instagram_url?: string;
+    bio?: string;
+    specialties?: string[];
+}
+
+interface GuideEvent {
+    id: string;
+    title: string;
+    date: string;
+    location?: string;
+    capacity?: number;
+    status: string;
+    bookings?: { count: number }[];
+}
 
 async function getGuide(id: string) {
     const supabase = await createClient();
@@ -87,7 +108,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
         notFound();
     }
 
-    const { guide, activeEvents, pastEvents } = data as any;
+    const { guide, activeEvents, pastEvents } = data as { guide: Guide; activeEvents: GuideEvent[]; pastEvents: GuideEvent[] };
 
     return (
         <main className="min-h-screen bg-slate-950 font-vazirmatn text-white selection:bg-emerald-500/30 pb-20">
@@ -103,7 +124,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
                         <div className="relative shrink-0">
                             <div className="w-40 h-40 rounded-3xl overflow-hidden border-4 border-slate-950 shadow-2xl relative z-10 bg-slate-800">
                                 {guide.avatar_url ? (
-                                    <img src={guide.avatar_url} alt={guide.full_name} className="w-full h-full object-cover object-[50%_15%]" />
+                                    <Image src={guide.avatar_url} alt={guide.full_name} fill className="object-cover object-[50%_15%]" sizes="160px" />
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <Users className="w-16 h-16 text-white/20" />
@@ -178,7 +199,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
 
                     {activeEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {activeEvents.map((event: any) => (
+                            {activeEvents.map((event: GuideEvent) => (
                                 <Link href={`/hikes/${event.id}`} key={event.id}>
                                     <div className="bg-slate-900 border border-white/10 p-5 rounded-2xl hover:border-emerald-500/30 transition-all hover:bg-slate-800/80 group">
                                         <h3 className="font-bold text-lg mb-4 group-hover:text-emerald-400 transition-colors">
@@ -220,7 +241,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
 
                     {pastEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {pastEvents.map((event: any) => (
+                            {pastEvents.map((event: GuideEvent) => (
                                 <div key={event.id} className="bg-slate-900/50 border border-white/5 p-4 rounded-xl opacity-70 hover:opacity-100 transition-opacity">
                                     <h3 className="font-bold text-sm mb-2 truncate text-white/80">
                                         {event.title}

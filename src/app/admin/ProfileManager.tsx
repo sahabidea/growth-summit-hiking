@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Loader2, User, Save, Link as LinkIcon, Edit3, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { updateGuideProfile } from "@/app/actions/admin-users";
@@ -15,26 +15,26 @@ export default function ProfileManager() {
         instagram_url: ""
     });
 
-    useEffect(() => {
-        loadProfile();
-    }, []);
-
-    async function loadProfile() {
-        setLoading(true);
+    const loadProfile = useCallback(async () => {
+        setTimeout(() => setLoading(true), 0);
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
             const { data } = await supabase.from('profiles').select('bio, specialties, instagram_url').eq('id', user.id).single();
             if (data) {
-                setProfile({
+                setTimeout(() => setProfile({
                     bio: data.bio || "",
                     specialties: data.specialties ? data.specialties.join(", ") : "",
                     instagram_url: data.instagram_url || ""
-                });
+                }), 0);
             }
         }
-        setLoading(false);
-    }
+        setTimeout(() => setLoading(false), 0);
+    }, []);
+
+    useEffect(() => {
+        loadProfile();
+    }, [loadProfile]);
 
     async function handleSave(e: React.FormEvent) {
         e.preventDefault();

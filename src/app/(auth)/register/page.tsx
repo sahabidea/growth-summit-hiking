@@ -223,6 +223,14 @@ export default function RegisterPage() {
                     وارد شوید
                 </Link>
             </div>
+
+            {/* Loading Overlay */}
+            {loading && (
+                <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-950/60 backdrop-blur-sm rounded-[2rem] border border-white/5 animate-in fade-in duration-300">
+                    <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+                    <p className="text-white font-bold text-lg animate-pulse">در حال ثبت اطلاعات...</p>
+                </div>
+            )}
         </AuthLayout>
     );
 }

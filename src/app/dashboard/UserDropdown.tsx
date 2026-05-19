@@ -2,6 +2,7 @@
 
 import { LogOut, User, LayoutDashboard, Trophy, Target, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -42,7 +43,7 @@ export function UserDropdown({ user }: UserDropdownProps) {
             >
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg shadow-emerald-500/20 group-hover:scale-105 transition-transform overflow-hidden relative border border-white/10">
                     {user.avatar_url ? (
-                        <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                        <Image src={user.avatar_url} alt={user.full_name} fill className="object-cover" sizes="40px" />
                     ) : (
                         initial
                     )}

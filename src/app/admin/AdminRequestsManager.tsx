@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getAllAdminRequests, reviewAdminRequest, confirmAdminPayment } from "@/app/actions/admin-requests";
 import {
     Shield, Clock, CheckCircle2, XCircle, CreditCard,
@@ -8,6 +8,7 @@ import {
     User, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface AdminRequestItem {
     id: string;
@@ -44,16 +45,18 @@ export default function AdminRequestsManager() {
     const [adminFee, setAdminFee] = useState(500000);
     const [actionLoading, setActionLoading] = useState(false);
 
-    useEffect(() => {
-        loadRequests();
+    const loadRequests = useCallback(async () => {
+        setTimeout(() => setLoading(true), 0);
+        const res = await getAllAdminRequests();
+        if (res.success && res.data) {
+            setTimeout(() => setRequests(res.data as AdminRequestItem[]), 0);
+        }
+        setTimeout(() => setLoading(false), 0);
     }, []);
 
-    const loadRequests = async () => {
-        setLoading(true);
-        const res = await getAllAdminRequests();
-        if (res.success && res.data) setRequests(res.data as AdminRequestItem[]);
-        setLoading(false);
-    };
+    useEffect(() => {
+        loadRequests();
+    }, [loadRequests]);
 
     const handleReview = async (id: string, action: "approve" | "reject" | "payment_required") => {
         setActionLoading(true);
@@ -71,11 +74,11 @@ export default function AdminRequestsManager() {
         setActionLoading(false);
     };
 
-    const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
-        pending: { label: "در انتظار بررسی", color: "amber", icon: Clock },
-        approved: { label: "تایید شده", color: "emerald", icon: CheckCircle2 },
-        rejected: { label: "رد شده", color: "rose", icon: XCircle },
-        payment_required: { label: "در انتظار پرداخت", color: "cyan", icon: CreditCard },
+    const statusConfig = {
+        pending: { label: "در انتظار بررسی", color: "amber" as const, icon: Clock },
+        approved: { label: "تایید شده", color: "emerald" as const, icon: CheckCircle2 },
+        rejected: { label: "رد شده", color: "rose" as const, icon: XCircle },
+        payment_required: { label: "در انتظار پرداخت", color: "cyan" as const, icon: CreditCard },
     };
 
     if (loading) {
@@ -96,7 +99,7 @@ export default function AdminRequestsManager() {
             ) : (
                 <div className="space-y-4">
                     {requests.map((req) => {
-                        const cfg = statusConfig[req.status] || statusConfig.pending;
+                        const cfg = statusConfig[req.status as keyof typeof statusConfig] || statusConfig.pending;
                         const Icon = cfg.icon;
                         const isExpanded = expandedId === req.id;
                         const isReviewing = reviewingId === req.id;
@@ -107,9 +110,9 @@ export default function AdminRequestsManager() {
                                 <div className="p-4 flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-colors"
                                     onClick={() => setExpandedId(isExpanded ? null : req.id)}
                                 >
-                                    <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold shrink-0 overflow-hidden">
+                                    <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400 font-bold shrink-0 overflow-hidden relative">
                                         {req.profiles?.avatar_url ? (
-                                            <img src={req.profiles.avatar_url} className="w-full h-full object-cover" alt="" />
+                                            <Image src={req.profiles.avatar_url} className="object-cover" alt="" fill sizes="40px" />
                                         ) : (
                                             req.profiles?.full_name?.[0] || "?"
                                         )}

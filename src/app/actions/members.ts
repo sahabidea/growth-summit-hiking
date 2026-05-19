@@ -75,30 +75,30 @@ export async function getNextEvent() {
 
     if (error || !event) return { success: false, error: "No upcoming events found." };
 
-    // 2. Get attendees count
-    const { count: attendeesCount } = await supabase
-        .from("bookings")
-        .select("*", { count: "exact", head: true })
-        .eq("event_id", event.id)
-        .eq("status", "confirmed");
-
-    // 3. Get user's booking status for this event (if logged in)
     let userBookingStatus = null;
-    if (user) {
-        const { data: booking } = await supabase
+
+    // Fetch attendees count and user booking status in parallel
+    const [countRes, bookingRes] = await Promise.all([
+        supabase
+            .from("bookings")
+            .select("*", { count: "exact", head: true })
+            .eq("event_id", event.id)
+            .eq("status", "confirmed"),
+        user ? supabase
             .from("bookings")
             .select("status")
             .eq("event_id", event.id)
             .eq("user_id", user.id)
-            .single();
-        if (booking) userBookingStatus = booking.status;
-    }
+            .single() : Promise.resolve({ data: null })
+    ]);
+
+    if (bookingRes.data) userBookingStatus = bookingRes.data.status;
 
     return {
         success: true,
         data: {
             ...event,
-            attendees_count: attendeesCount || 0,
+            attendees_count: countRes.count || 0,
             user_booking_status: userBookingStatus,
         } as Event,
     };
@@ -112,32 +112,30 @@ export async function joinEvent(eventId: string) {
 
     if (!user) return { success: false, error: "Please login to join." };
 
-    // 1. Check Profile & Subscription
-    const { data: profile } = await supabase
-        .from("profiles")
-        .select("subscription_status")
-        .eq("id", user.id)
-        .single();
+    // Check Profile, Event Capacity, and Booking Count in parallel
+    const [profileRes, eventRes, countRes] = await Promise.all([
+        supabase
+            .from("profiles")
+            .select("subscription_status")
+            .eq("id", user.id)
+            .single(),
+        supabase
+            .from("events")
+            .select("capacity")
+            .eq("id", eventId)
+            .single(),
+        supabase
+            .from("bookings")
+            .select("*", { count: "exact", head: true })
+            .eq("event_id", eventId)
+            .eq("status", "confirmed")
+    ]);
 
-    if (profile?.subscription_status !== "active") {
+    if (profileRes.data?.subscription_status !== "active") {
         return { success: false, error: "Subscription required." };
     }
 
-    // 2. Check Capacity
-    const { data: event } = await supabase
-        .from("events")
-        .select("capacity")
-        .eq("id", eventId)
-        .single();
-
-    // Using head: true for count
-    const { count } = await supabase
-        .from("bookings")
-        .select("*", { count: "exact", head: true })
-        .eq("event_id", eventId)
-        .eq("status", "confirmed");
-
-    if (!event || (count || 0) >= event.capacity) {
+    if (!eventRes.data || (countRes.count || 0) >= eventRes.data.capacity) {
         return { success: false, error: "Event is full." };
     }
 
@@ -162,6 +160,24 @@ export async function cancelBooking(eventId: string) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, error: "Unauthorized" };
 
+    // دریافت اطلاعات برنامه و رزرو قبل از لغو
+    const [bookingRes, eventRes] = await Promise.all([
+        supabase
+            .from("bookings")
+            .select("id")
+            .eq("event_id", eventId)
+            .eq("user_id", user.id)
+            .single(),
+        supabase
+            .from("events")
+            .select("title, booking_price")
+            .eq("id", eventId)
+            .single(),
+    ]);
+
+    if (!bookingRes.data) return { success: false, error: "رزرو یافت نشد." };
+
+    // حذف رزرو
     const { error } = await supabase
         .from("bookings")
         .delete()
@@ -170,6 +186,29 @@ export async function cancelBooking(eventId: string) {
 
     if (error) return { success: false, error: error.message };
 
+    // بازگشت ۵۰٪ هزینه به کیف پول (اگر برنامه هزینه داشته باشد)
+    const event = eventRes.data;
+    const originalPrice = event?.booking_price || 0;
+
+    if (originalPrice > 0) {
+        const { addToWallet } = await import("./wallet");
+        const refundAmount = Math.round(originalPrice * 0.5);
+        await addToWallet(
+            user.id,
+            refundAmount,
+            "refund",
+            `بازگشت ۵۰٪ هزینه لغو رزرو: ${event?.title || "برنامه"}`,
+            bookingRes.data.id
+        );
+        revalidatePath("/dashboard");
+        return {
+            success: true,
+            refunded: true,
+            refundAmount,
+            message: `رزرو لغو شد. مبلغ ${refundAmount.toLocaleString()} تومان به کیف پول شما بازگشت.`
+        };
+    }
+
     revalidatePath("/dashboard");
-    return { success: true };
+    return { success: true, refunded: false };
 }
